@@ -6,15 +6,10 @@
  *
  * - generatePetPortrait - A function that handles the pet portrait generation process.
  */
-import { genkit } from 'genkit';
-import { googleAI } from '@genkit-ai/googleai';
 import { z } from 'zod';
+import { ai } from '@/ai/genkit';
 import { GeneratePetPortraitInput, GeneratePetPortraitInputSchema, GeneratePetPortraitOutput, GeneratePetPortraitOutputSchema } from './types';
 
-// Initialize Genkit with only the Google AI plugin for this server action context.
-const ai = genkit({
-  plugins: [googleAI()],
-});
 
 const humanValidationPrompt = ai.definePrompt({
     name: 'humanValidationPrompt',
