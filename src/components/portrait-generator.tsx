@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useRef, useEffect, useActionState } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import { useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
 import Image from 'next/image';
 import { Camera, Sparkles, Wand2, Share2, RefreshCw, ShoppingCart, RefreshCcw, Download } from 'lucide-react';
@@ -101,11 +102,19 @@ export default function PortraitGenerator() {
     // A true reset of useActionState isn't supported directly.
     // Instead, we create a new initial state object to effectively
     // clear the previous result while letting the form persist.
-    const clearedState = { ...initialGenerateState };
+    const clearedState = { ...initialGenerateState, 
+      // Keep user-provided data
+      petName: generateState.petName,
+      photoDataUri: photoDataUri,
+    };
     generateAction(new FormData()); // Trigger an update with empty data
     // We can't directly set the state, but we can effectively reset the view
     // by clearing the portrait URI from our local copy of the state.
     generateState.portraitDataUri = undefined;
+    
+    // Clear selections to allow for a new choice
+    setSelectedHat('');
+    setCustomHat('');
   };
   
   const shuffleHats = () => {
@@ -147,7 +156,8 @@ export default function PortraitGenerator() {
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      setPhotoPreview(URL.createObjectURL(file));
+      const newPhotoUrl = URL.createObjectURL(file);
+      setPhotoPreview(newPhotoUrl);
       const reader = new FileReader();
       reader.onloadend = () => {
         setPhotoDataUri(reader.result as string);
@@ -319,7 +329,7 @@ export default function PortraitGenerator() {
                 <div className="w-full grid grid-cols-3 gap-2">
                     <Button asChild variant="outline" className="w-full">
                         <a
-                         href={`https://www.amazon.com/s?k=${encodeURIComponent(generateState.hatStyle || '')}&tag=logonitro-20`}
+                         href={`https://www.amazon.com/s?k=${encodeURIComponent((generateState.hatStyle || '') + ' for pet')}&tag=logonitro-20`}
                          target="_blank"
                          rel="noopener noreferrer"
                         >

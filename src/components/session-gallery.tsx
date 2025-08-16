@@ -37,7 +37,7 @@ export function SessionGallery({ portraits }: SessionGalleryProps) {
               <Button asChild variant="secondary" className="w-full">
                 <a
                   href={`https://www.amazon.com/s?k=${encodeURIComponent(
-                    portrait.hatStyle
+                    portrait.hatStyle + ' for pet'
                   )}&tag=logonitro-20`}
                   target="_blank"
                   rel="noopener noreferrer"
