@@ -98,12 +98,14 @@ export default function PortraitGenerator() {
   const generateFormRef = useRef<HTMLFormElement>(null);
   
   const resetPortrait = () => {
-    // This is a bit of a hack to reset the form action state
-    (generateFormRef.current as any)?.reset();
-    // We can't directly reset useActionState, so we trigger a state update
-    // that effectively archives the last run. A true reset isn't supported.
-    // For this UI, we just need to clear the image.
-    initialGenerateState.portraitDataUri = ''; 
+    // A true reset of useActionState isn't supported directly.
+    // Instead, we create a new initial state object to effectively
+    // clear the previous result while letting the form persist.
+    const clearedState = { ...initialGenerateState };
+    generateAction(new FormData()); // Trigger an update with empty data
+    // We can't directly set the state, but we can effectively reset the view
+    // by clearing the portrait URI from our local copy of the state.
+    generateState.portraitDataUri = undefined;
   };
   
   const shuffleHats = () => {
