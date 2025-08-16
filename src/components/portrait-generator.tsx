@@ -84,7 +84,7 @@ function PublishButton() {
 
 export default function PortraitGenerator() {
   const [generateState, generateAction, isGenerating] = useActionState(handleGeneratePortrait, initialGenerateState);
-  const [publishState, publishAction] = useActionState(handlePublishPortrait, initialPublishState);
+  const [publishState, publishAction, isPublishing] = useActionState(handlePublishPortrait, initialPublishState);
 
   const { toast } = useToast();
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
@@ -126,37 +126,53 @@ export default function PortraitGenerator() {
   }, []);
 
   useEffect(() => {
+    if (isGenerating || isPublishing) return;
+
     if (generateState.success && generateState.portraitDataUri) {
+        setGeneratedPortraits((prev) => [
+            ...prev,
+            { portraitDataUri: generateState.portraitDataUri!, hatStyle: getHatStyle() },
+        ]);
+        if (generateState.petName) {
+            setPetName(generateState.petName);
+        }
+    }
+
+    if (generateState.message && !generateState.success) {
+        toast({
+            title: 'Oops!',
+            description: generateState.message,
+            variant: 'destructive',
+        });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [generateState]);
+
+   useEffect(() => {
+    if (generateState?.portraitDataUri) {
       portraitSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      setGeneratedPortraits((prev) => [
-        ...prev,
-        { portraitDataUri: generateState.portraitDataUri!, hatStyle: getHatStyle() },
-      ]);
-      // Persist pet name after generation
-      if (generateState.petName) {
-          setPetName(generateState.petName);
-      }
     }
-    // Show toast for validation errors
-    if (generateState.message && !generateState.success && !isGenerating) {
-       toast({
-        title: 'Oops!',
-        description: generateState.message,
-        variant: 'destructive',
-      });
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [generateState, isGenerating]);
+  }, [generateState?.portraitDataUri]);
+
 
   useEffect(() => {
-      if (publishState.message) {
+      if (publishState.message && !isPublishing) {
           toast({
               title: publishState.success ? 'Success!' : 'Oops!',
               description: publishState.message,
               variant: publishState.success ? 'default' : 'destructive',
           });
+          // After successful publication, reset the current portrait view
+          // so the user can generate a new one.
+          if (publishState.success) {
+             if (generateState.success) {
+                generateState.portraitDataUri = undefined;
+                generateState.success = false;
+            }
+          }
       }
-  }, [publishState, toast])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [publishState]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];

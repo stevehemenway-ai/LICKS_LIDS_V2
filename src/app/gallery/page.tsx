@@ -26,7 +26,11 @@ export default function GalleryPage() {
                 setPortraits(fetchedPortraits);
                 const initialVotes = fetchedPortraits.reduce((acc, p) => ({ ...acc, [p.id]: p.votes }), {} as Record<string, number>);
                 setVotes(initialVotes);
+                 // Check localStorage for previously voted items
+                const localVoted = JSON.parse(localStorage.getItem('voted_portraits') || '{}');
+                setVoted(localVoted);
             } catch (err) {
+                console.error(err);
                 setError('Failed to fetch portraits. Please try again later.');
             } finally {
                 setLoading(false);
@@ -38,18 +42,22 @@ export default function GalleryPage() {
     const handleVote = async (id: string) => {
         if (voted[id]) return;
 
+        const newVoted = { ...voted, [id]: true };
+        setVoted(newVoted);
+        localStorage.setItem('voted_portraits', JSON.stringify(newVoted));
+
         // Optimistically update UI
         setVotes(prev => ({ ...prev, [id]: (prev[id] || 0) + 1 }));
-        setVoted(prev => ({ ...prev, [id]: true }));
 
         try {
-            // Persist vote to the "backend"
             await updateVoteCount(id);
         } catch (err) {
-            // Revert optimistic update on error
             setError('Failed to save vote. Please try again.');
+            // Revert optimistic UI update on error
             setVotes(prev => ({ ...prev, [id]: prev[id] - 1 }));
-            setVoted(prev => ({ ...prev, [id]: false }));
+            const revertedVoted = { ...voted, [id]: false };
+            setVoted(revertedVoted);
+            localStorage.setItem('voted_portraits', JSON.stringify(revertedVoted));
         }
     }
 
@@ -96,41 +104,48 @@ export default function GalleryPage() {
 
         {!loading && !error && (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                {portraits.map((portrait) => (
-                <Card key={portrait.id} className="overflow-hidden group">
-                    <CardContent className="p-0">
-                    <div className="aspect-square relative">
-                        <Image
-                        src={portrait.portraitDataUri}
-                        alt={`${portrait.petName} wearing a ${portrait.hatStyle}`}
-                        fill
-                        className="object-cover transition-transform duration-300 group-hover:scale-105"
-                        />
-                    </div>
-                    </CardContent>
-                    <CardHeader className="p-4">
-                    <CardTitle as="h3">{portrait.petName}</CardTitle>
-                    <CardDescription>Sporting a stylish {portrait.hatStyle}</CardDescription>
-                    </CardHeader>
-                    <CardFooter className="p-4 pt-0 flex-col gap-2">
-                      <Button onClick={() => handleVote(portrait.id)} variant={voted[portrait.id] ? "secondary" : "default"} className="w-full" disabled={voted[portrait.id]}>
-                          <Heart className={cn("mr-2 h-4 w-4", voted[portrait.id] ? "fill-red-500 text-red-500" : "")} />
-                          {voted[portrait.id] ? 'Voted!' : 'Vote'} ({votes[portrait.id] || 0})
-                      </Button>
-                      <Button asChild variant="outline" className="w-full">
-                          <a
-                           href={`https://www.amazon.com/s?k=${encodeURIComponent(portrait.hatStyle + ' for pet')}&tag=logonitro-20`}
-                           target="_blank"
-                           rel="noopener noreferrer"
-                          >
-                              <ShoppingCart /> Shop this look
-                          </a>
-                      </Button>
-                    </CardFooter>
-                </Card>
-                ))}
-            </div>
+            {portraits.length === 0 ? (
+                 <div className="text-center py-16 border-2 border-dashed rounded-lg">
+                    <h2 className="text-2xl font-semibold">The Gallery is Empty</h2>
+                    <p className="mt-2 text-muted-foreground">Be the first to publish a portrait!</p>
+                </div>
+            ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                    {portraits.map((portrait) => (
+                    <Card key={portrait.id} className="overflow-hidden group">
+                        <CardContent className="p-0">
+                        <div className="aspect-square relative">
+                            <Image
+                            src={portrait.imageUrl}
+                            alt={`${portrait.petName} wearing a ${portrait.hatStyle}`}
+                            fill
+                            className="object-cover transition-transform duration-300 group-hover:scale-105"
+                            />
+                        </div>
+                        </CardContent>
+                        <CardHeader className="p-4">
+                        <CardTitle as="h3">{portrait.petName}</CardTitle>
+                        <CardDescription>Sporting a stylish {portrait.hatStyle}</CardDescription>
+                        </CardHeader>
+                        <CardFooter className="p-4 pt-0 flex-col gap-2">
+                          <Button onClick={() => handleVote(portrait.id)} variant={voted[portrait.id] ? "secondary" : "default"} className="w-full" disabled={voted[portrait.id]}>
+                              <Heart className={cn("mr-2 h-4 w-4", voted[portrait.id] ? "fill-red-500 text-red-500" : "")} />
+                              {voted[portrait.id] ? 'Voted!' : 'Vote'} ({votes[portrait.id] || 0})
+                          </Button>
+                          <Button asChild variant="outline" className="w-full">
+                              <a
+                               href={`https://www.amazon.com/s?k=${encodeURIComponent(portrait.hatStyle + ' for pet')}&tag=logonitro-20`}
+                               target="_blank"
+                               rel="noopener noreferrer"
+                              >
+                                  <ShoppingCart /> Shop this look
+                              </a>
+                          </Button>
+                        </CardFooter>
+                    </Card>
+                    ))}
+                </div>
+            )}
             <div className="text-center mt-12">
                 <p className="text-xs text-muted-foreground">
                     As an Amazon Associate, we earn from qualifying purchases.
@@ -142,4 +157,3 @@ export default function GalleryPage() {
     </>
   );
 }
-
