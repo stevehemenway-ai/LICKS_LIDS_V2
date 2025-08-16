@@ -42,7 +42,7 @@ const hatOptions = [
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" className="w-full" disabled={pending}>
+    <Button type="submit" variant="accent" className="w-full" disabled={pending}>
       {pending ? (
         <>
           <Sparkles className="mr-2 h-4 w-4 animate-spin" />
