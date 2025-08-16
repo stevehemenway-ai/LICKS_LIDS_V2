@@ -61,10 +61,10 @@ function GenerateButton() {
   );
 }
 
-function PublishButton({ petName, hatStyle, portraitDataUri }: { petName?: string; hatStyle?: string; portraitDataUri?: string; }) {
+function PublishButton() {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" variant="secondary" className="w-full" disabled={pending || !portraitDataUri}>
+    <Button type="submit" variant="secondary" className="w-full" disabled={pending}>
       {pending ? (
           <>
             <Sparkles className="mr-2 h-4 w-4 animate-spin" />
@@ -322,11 +322,7 @@ export default function PortraitGenerator() {
                     <input type="hidden" name="petName" value={petName || ''} />
                     <input type="hidden" name="hatStyle" value={getHatStyle() || ''} />
                     <input type="hidden" name="portraitDataUri" value={currentPortrait || ''} />
-                    <PublishButton 
-                        petName={petName}
-                        hatStyle={getHatStyle()}
-                        portraitDataUri={currentPortrait}
-                    />
+                    <PublishButton />
                 </form>
                 <div className="w-full grid grid-cols-3 gap-2">
                     <Button asChild variant="outline" className="w-full">
