@@ -1,8 +1,8 @@
 
 'use client';
 
+import type { GenerateFormState, PublishFormState } from "@/app/actions";
 import PortraitGeneratorForm from "./portrait-generator-form";
-import type { GenerateFormState, PublishFormState } from "@/app/page";
 
 type PortraitGeneratorProps = {
     generateAction: (prevState: GenerateFormState, formData: FormData) => Promise<GenerateFormState>;

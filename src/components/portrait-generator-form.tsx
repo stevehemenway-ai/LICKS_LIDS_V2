@@ -7,7 +7,7 @@ import { useFormStatus } from 'react-dom';
 import Image from 'next/image';
 import { Camera, Sparkles, Wand2, Share2, RefreshCw, ShoppingCart, RefreshCcw, Download } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import type { GenerateFormState, PublishFormState } from '@/app/page';
+import type { GenerateFormState, PublishFormState } from '@/app/actions';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
