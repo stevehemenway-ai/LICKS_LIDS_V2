@@ -11,17 +11,6 @@ import { ai } from '@/ai/genkit';
 import { GeneratePetPortraitInput, GeneratePetPortraitInputSchema, GeneratePetPortraitOutput, GeneratePetPortraitOutputSchema } from './types';
 
 
-const humanValidationPrompt = ai.definePrompt({
-    name: 'humanValidationPrompt',
-    model: 'googleai/gemini-1.5-flash',
-    input: { schema: z.object({ photoDataUri: z.string() }) },
-    output: { schema: z.object({ isHuman: z.boolean().describe('Whether the image contains a human.') }) },
-    prompt: `Analyze the provided image and determine if it contains a human face or figure. Set isHuman to true if a human is present, otherwise set it to false.
-    
-    Image: {{media url=photoDataUri}}`,
-});
-
-
 const generatePetPortraitFlow = ai.defineFlow(
   {
     name: 'generatePetPortraitFlow',
@@ -30,11 +19,6 @@ const generatePetPortraitFlow = ai.defineFlow(
   },
   async (input) => {
     
-    const validationResult = await humanValidationPrompt({ photoDataUri: input.photoDataUri });
-    if (validationResult.output?.isHuman) {
-        throw new Error("A human was detected in the photo. Please upload a picture of a pet.");
-    }
-
     const { media } = await ai.generate({
         model: 'googleai/gemini-2.0-flash-preview-image-generation',
         prompt: [
