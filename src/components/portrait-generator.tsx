@@ -27,7 +27,7 @@ const publishFormSchema = z.object({
     portraitDataUri: z.string(),
 });
 
-// SERVER ACTION 1: Must be async
+// SERVER ACTION 1: Correctly defined as async
 export async function handleGeneratePortrait(
   prevState: GenerateFormState,
   formData: FormData
@@ -86,7 +86,7 @@ export async function handleGeneratePortrait(
 }
 
 
-// SERVER ACTION 2: Must be async
+// SERVER ACTION 2: Correctly defined as async
 export async function handlePublishPortrait(
     prevState: PublishFormState,
     formData: FormData,
