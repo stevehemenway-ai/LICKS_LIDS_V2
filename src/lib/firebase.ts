@@ -1,4 +1,3 @@
-
 // This configuration is public and can be safely exposed to the client.
 // Firebase security rules are used to protect data.
 export const firebaseConfig = {
