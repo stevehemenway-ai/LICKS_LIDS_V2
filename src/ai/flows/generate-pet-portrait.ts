@@ -37,20 +37,6 @@ export async function generatePetPortrait(
   return generatePetPortraitFlow(input);
 }
 
-const petPortraitPrompt = ai.definePrompt({
-  name: 'petPortraitPrompt',
-  input: {schema: GeneratePetPortraitInputSchema},
-  output: {schema: GeneratePetPortraitOutputSchema},
-  prompt: `You are an AI artist specializing in photorealistic pet portraits.
-
-  Create a portrait of {{petName}} wearing a {{hatStyle}}.
-  The portrait should be photorealistic and high quality.
-
-  Here is a photo of {{petName}}:
-  {{media url=photoDataUri}}
-  `,
-});
-
 const generatePetPortraitFlow = ai.defineFlow(
   {
     name: 'generatePetPortraitFlow',
@@ -62,7 +48,7 @@ const generatePetPortraitFlow = ai.defineFlow(
       model: 'googleai/gemini-2.0-flash-preview-image-generation',
       prompt: [
         {media: {url: input.photoDataUri}},
-        {text: `Create a portrait of ${input.petName} wearing a ${input.hatStyle}`},
+        {text: `Create a photorealistic, high quality portrait of ${input.petName} wearing a ${input.hatStyle}.`},
       ],
       config: {
         responseModalities: ['TEXT', 'IMAGE'],
