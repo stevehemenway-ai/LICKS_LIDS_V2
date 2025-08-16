@@ -1,0 +1,14 @@
+
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Allow public read access to all files in the storage bucket.
+    // This is necessary for the gallery images to be displayed.
+    // Restrict writes to be handled by server-side logic.
+    match /{allPaths=**} {
+      allow read: if true;
+      allow write: if false; // Disallow client-side uploads
+    }
+  }
+}
