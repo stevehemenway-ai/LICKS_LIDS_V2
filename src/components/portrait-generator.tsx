@@ -13,7 +13,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { SessionGallery } from '@/components/session-gallery';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 import { Textarea } from './ui/textarea';
@@ -93,9 +92,6 @@ export default function PortraitGenerator() {
   const [selectedHat, setSelectedHat] = useState('');
   const [customHat, setCustomHat] = useState('');
   const [displayedHats, setDisplayedHats] = useState<string[]>([]);
-  const [generatedPortraits, setGeneratedPortraits] = useState<
-    { portraitDataUri: string; hatStyle: string }[]
-  >([]);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const hatSelectionRef = useRef<HTMLDivElement>(null);
@@ -131,10 +127,6 @@ export default function PortraitGenerator() {
     if (isGenerating || isPublishing) return;
 
     if (generateState.success && generateState.portraitDataUri) {
-        setGeneratedPortraits((prev) => [
-            ...prev,
-            { portraitDataUri: generateState.portraitDataUri!, hatStyle: generateState.hatStyle! },
-        ]);
         if (generateState.petName) {
             setPetName(generateState.petName);
         }
@@ -377,8 +369,6 @@ export default function PortraitGenerator() {
             </Card>
         </div>
       </div>
-
-      <SessionGallery portraits={generatedPortraits} />
     </>
   );
 }
