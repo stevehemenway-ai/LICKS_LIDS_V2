@@ -7,5 +7,5 @@ import {googleAI} from '@genkit-ai/googleai';
 // The exported `ai` object is imported by server actions and flows.
 
 export const ai = genkit({
-  plugins: [googleAI()],
+  plugins: [googleAI({ structuredOutput: true })],
 });
