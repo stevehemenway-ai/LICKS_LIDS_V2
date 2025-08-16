@@ -1,11 +1,6 @@
 
 'use server';
 
-import { z } from 'zod';
-import { generatePetPortrait } from '@/ai/flows/generate-pet-portrait';
-import { addPortraitToGallery } from '@/services/gallery.service';
-import { generateFormSchema } from '@/ai/flows/types';
-
 export type GenerateFormState = {
   success: boolean;
   message: string;
@@ -14,113 +9,7 @@ export type GenerateFormState = {
   hatStyle?: string;
 };
 
-export async function handleGeneratePortrait(
-  prevState: GenerateFormState,
-  formData: FormData
-): Promise<GenerateFormState> {
-  try {
-    const validatedFields = generateFormSchema.safeParse({
-      petName: formData.get('petName'),
-      photoDataUri: formData.get('photoDataUri'),
-      hatStyle: formData.get('hatStyle'),
-    });
-
-    if (!validatedFields.success) {
-        const issues = validatedFields.error.issues;
-        const petNameIssue = issues.find(i => i.path.includes('petName'));
-        if (petNameIssue) {
-            return { success: false, message: petNameIssue.message };
-        }
-        const photoIssue = issues.find(i => i.path.includes('photoDataUri'));
-        if (photoIssue) {
-            return { success: false, message: photoIssue.message };
-        }
-        const hatIssue = issues.find(i => i.path.includes('hatStyle'));
-        if (hatIssue) {
-            return { success: false, message: hatIssue.message };
-        }
-        return {
-            success: false,
-            message: 'Invalid form data. Please check your inputs.',
-        };
-    }
-    
-    const generationInput = validatedFields.data;
-    
-    const result = await generatePetPortrait(generationInput);
-
-    if (!result.portraitDataUri) {
-        throw new Error('AI generation failed to return a portrait.');
-    }
-
-    return {
-      success: true,
-      message: 'Your masterpiece is ready!',
-      portraitDataUri: result.portraitDataUri,
-      petName: validatedFields.data.petName,
-      hatStyle: validatedFields.data.hatStyle,
-    };
-  } catch (error) {
-    console.error('Error generating portrait:', error);
-    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
-    
-    // Check for the specific human detection error message
-    if (errorMessage.includes('A human was detected')) {
-        return {
-            success: false,
-            message: errorMessage,
-        };
-    }
-
-    return {
-      success: false,
-      message: `Generation failed: ${errorMessage}`,
-    };
-  }
-}
-
-const publishFormSchema = z.object({
-    petName: z.string(),
-    hatStyle: z.string(),
-    portraitDataUri: z.string(),
-});
-
 export type PublishFormState = {
     success: boolean;
     message: string;
-}
-
-export async function handlePublishPortrait(
-    prevState: PublishFormState,
-    formData: FormData,
-): Promise<PublishFormState> {
-    try {
-        const validatedFields = publishFormSchema.safeParse({
-            petName: formData.get('petName'),
-            hatStyle: formData.get('hatStyle'),
-            portraitDataUri: formData.get('portraitDataUri'),
-        });
-
-        if (!validatedFields.success) {
-            return {
-                success: false,
-                message: 'Invalid data for publishing.',
-            };
-        }
-
-        await addPortraitToGallery(validatedFields.data);
-
-        return {
-            success: true,
-            message: 'Your portrait has been published to the gallery!',
-        };
-
-    } catch (error) {
-        console.error('Error publishing portrait:', error);
-        const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
-        return {
-            success: false,
-            message: `Failed to publish: ${errorMessage}`,
-        };
-    }
 }
