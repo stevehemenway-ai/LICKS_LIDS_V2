@@ -7,6 +7,26 @@ import { cn } from '@/lib/utils';
 export const metadata: Metadata = {
   title: 'Licks & Lids',
   description: 'Generate photorealistic portraits of your dog wearing a hat!',
+  openGraph: {
+    title: 'Licks & Lids',
+    description: 'Generate photorealistic portraits of your dog wearing a hat!',
+    type: 'website',
+    url: 'https://your-app-url.com', // Replace with your actual URL
+    images: [
+      {
+        url: 'https://your-app-url.com/og-image.png', // Replace with your actual OG image URL
+        width: 1200,
+        height: 630,
+        alt: 'A dapper dog wearing a stylish hat.',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Licks & Lids',
+    description: 'Generate photorealistic portraits of your dog wearing a hat!',
+    images: ['https://your-app-url.com/og-image.png'], // Replace with your actual OG image URL
+  },
 };
 
 export default function RootLayout({
