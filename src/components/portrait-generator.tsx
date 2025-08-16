@@ -31,16 +31,16 @@ const initialPublishState = {
 }
 
 const hatOptions = [
-  { name: 'Top Hat', image: 'https://placehold.co/100x100.png', hint: 'top hat' },
-  { name: 'Cowboy Hat', image: 'https://placehold.co/100x100.png', hint: 'cowboy hat' },
-  { name: 'Beanie', image: 'https://placehold.co/100x100.png', hint: 'beanie' },
-  { name: 'Fez', image: 'https://placehold.co/100x100.png', hint: 'fez' },
-  { name: 'Beret', image: 'https://placehold.co/100x100.png', hint: 'beret' },
-  { name: 'Baseball Cap', image: 'https://placehold.co/100x100.png', hint: 'baseball cap' },
-  { name: 'Graduation Cap', image: 'https://placehold.co/100x100.png', hint: 'graduation cap' },
-  { name: 'Sombrero', image: 'https://placehold.co/100x100.png', hint: 'sombrero' },
-  { name: 'Wizard Hat', image: 'https://placehold.co/100x100.png', hint: 'wizard hat' },
-  { name: 'None', image: 'https://placehold.co/100x100.png', hint: 'no hat' },
+  'Top Hat',
+  'Cowboy Hat',
+  'Beanie',
+  'Fez',
+  'Beret',
+  'Baseball Cap',
+  'Graduation Cap',
+  'Sombrero',
+  'Wizard Hat',
+  'None',
 ];
 
 function GenerateButton() {
@@ -142,6 +142,10 @@ export default function PortraitGenerator() {
     return selectedHat;
   };
 
+  const handleHatSelect = (hat: string) => {
+    setSelectedHat(hat);
+  }
+
   const currentPortrait = generateState.success ? generateState.portraitDataUri : undefined;
 
   const { pending: isGenerating } = useFormStatus();
@@ -201,52 +205,24 @@ export default function PortraitGenerator() {
 
              <div className="space-y-4">
                 <Label>3. Choose a Hat Style</Label>
-                <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-4">
+                <div className="flex flex-wrap gap-2">
                   {hatOptions.map((hat) => (
-                    <div
-                      key={hat.name}
-                      className={cn(
-                        "relative group cursor-pointer rounded-lg border-2 p-1 transition-all duration-200",
-                        selectedHat === hat.name
-                          ? 'border-primary ring-2 ring-primary shadow-lg'
-                          : 'border-muted hover:border-primary/50'
-                      )}
-                      onClick={() => setSelectedHat(hat.name)}
+                    <Button
+                      key={hat}
+                      type="button"
+                      variant={selectedHat === hat ? 'default' : 'outline'}
+                      onClick={() => handleHatSelect(hat)}
                     >
-                      <div className="aspect-square w-full bg-muted rounded-md overflow-hidden">
-                         <Image
-                            src={hat.image}
-                            alt={hat.name}
-                            width={100}
-                            height={100}
-                            data-ai-hint={hat.hint}
-                            className="object-cover w-full h-full"
-                          />
-                      </div>
-                       <p className="text-center text-xs font-medium mt-2 truncate group-hover:text-primary">{hat.name}</p>
-                       {selectedHat === hat.name && (
-                         <div className="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2">
-                           <CheckCircle2 className="h-6 w-6 text-primary bg-white rounded-full" />
-                         </div>
-                       )}
-                    </div>
+                      {hat}
+                    </Button>
                   ))}
-                   <div
-                      className={cn(
-                        "relative group cursor-pointer rounded-lg border-2 p-1 transition-all duration-200 flex flex-col justify-center items-center text-center",
-                        selectedHat === 'Custom'
-                          ? 'border-primary ring-2 ring-primary shadow-lg'
-                          : 'border-muted hover:border-primary/50'
-                      )}
-                      onClick={() => setSelectedHat('Custom')}
-                    >
-                      <p className="text-xs font-medium">Custom...</p>
-                       {selectedHat === 'Custom' && (
-                         <div className="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2">
-                           <CheckCircle2 className="h-6 w-6 text-primary bg-white rounded-full" />
-                         </div>
-                       )}
-                    </div>
+                  <Button
+                    type="button"
+                    variant={selectedHat === 'Custom' ? 'default' : 'outline'}
+                    onClick={() => handleHatSelect('Custom')}
+                  >
+                    Custom...
+                  </Button>
                 </div>
                 {selectedHat === 'Custom' && (
                   <Textarea
@@ -296,9 +272,9 @@ export default function PortraitGenerator() {
            {currentPortrait && (
             <CardFooter>
                  <form action={publishAction} className="w-full">
-                    <input type="hidden" name="dogName" value={generateState.dogName} />
-                    <input type="hidden" name="hatStyle" value={generateState.hatStyle} />
-                    <input type="hidden" name="portraitDataUri" value={generateState.portraitDataUri} />
+                    <input type="hidden" name="dogName" value={generateState.dogName || ''} />
+                    <input type="hidden" name="hatStyle" value={generateState.hatStyle || ''} />
+                    <input type="hidden" name="portraitDataUri" value={generateState.portraitDataUri || ''} />
                     <PublishButton 
                         dogName={generateState.dogName}
                         hatStyle={generateState.hatStyle}
