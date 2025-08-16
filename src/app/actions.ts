@@ -52,7 +52,22 @@ export async function handleGeneratePortrait(
     
     const generationInput = validatedFields.data;
     
-    const result = await generatePetPortrait(generationInput);
+    // Instead of calling the flow directly, we fetch from the API endpoint.
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/genkit/generatePetPortraitFlow`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ data: generationInput }),
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || `Request failed with status ${response.status}`);
+    }
+
+    const result = await response.json();
+
 
     if (!result.portraitDataUri) {
         throw new Error('AI generation failed to return a portrait.');
