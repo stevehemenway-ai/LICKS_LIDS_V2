@@ -38,7 +38,7 @@ const generatePetPortraitFlow = ai.defineFlow(
     const { media } = await ai.generate({
         model: 'googleai/gemini-2.0-flash-preview-image-generation',
         prompt: [
-            { text: `Analyze the provided image to identify the pet. Create a photorealistic, high-quality portrait by digitally adding a ${input.hatStyle} to the pet in the photo. The final image should feature the original pet.` },
+            { text: `Analyze the provided image to identify the pet. Create a photorealistic, high-quality portrait by digitally adding a ${input.hatStyle} to the pet in the photo. The final image should feature the original pet. The image should be returned as a base64 encoded string.` },
             { media: { url: input.photoDataUri } }
         ],
         config: {

@@ -63,7 +63,9 @@ export async function addPortraitToGallery(data: { petName: string; hatStyle: st
     const storageRef = ref(storage, `portraits/${Date.now()}_${petName.replace(/\s+/g, '_')}.png`);
     
     // The data URI needs to be stripped of its prefix before uploading
-    const uploadData = portraitDataUri.split(',')[1];
+    const uploadData = portraitDataUri.startsWith('data:') 
+        ? portraitDataUri.split(',')[1] 
+        : portraitDataUri;
     
     const snapshot = await uploadString(storageRef, uploadData, 'base64', {
         contentType: 'image/png'
