@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
@@ -125,10 +126,10 @@ export default function PortraitGenerator() {
   }, []);
 
   useEffect(() => {
-    if (isGenerating) {
+    if (isGenerating && !generateState.message) {
         portraitSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
-  }, [isGenerating]);
+  }, [isGenerating, generateState.message]);
 
   useEffect(() => {
     if (generateState.success && generateState.portraitDataUri) {
