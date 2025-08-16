@@ -1,4 +1,4 @@
-import PortraitGenerator from "@/components/portrait-generator";
+import PortraitGeneratorForm from "@/components/portrait-generator-form";
 
 export default function Home() {
   return (
@@ -11,7 +11,9 @@ export default function Home() {
           Welcome to Licks & Lids! Have you ever wondered what your furry friend would look like in a crown, a cowboy hat, or even a wizard's cap? Now you can find out! Just upload a photo, choose a hat style, and let our AI create a unique, photorealistic masterpiece for you to share and adore.
         </p>
       </div>
-      <PortraitGenerator />
+       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+          <PortraitGeneratorForm />
+       </div>
     </div>
   );
 }
