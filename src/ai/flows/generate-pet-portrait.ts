@@ -21,12 +21,9 @@ const generatePetPortraitFlow = ai.defineFlow(
     
     const { media } = await ai.generate({
         model: 'googleai/gemini-2.0-flash-preview-image-generation',
-        prompt: [
-            { text: `Analyze the provided image to identify the pet. Create a photorealistic, high-quality portrait by digitally adding a ${input.hatStyle} to the pet in the photo. The final image should feature the original pet.` },
-            { media: { url: input.photoDataUri } }
-        ],
+        prompt: `A photorealistic, high-quality portrait of a ${input.petName} wearing a ${input.hatStyle}. The final image should look like a real photo.`,
         config: {
-            responseModalities: ['IMAGE'], // Request only image modality
+            responseModalities: ['IMAGE'], 
         },
     });
 
@@ -36,6 +33,7 @@ const generatePetPortraitFlow = ai.defineFlow(
       throw new Error('Failed to generate the pet portrait.');
     }
     
+    // The media.url from the image generation model is already a data URI
     return { portraitDataUri };
   }
 );
