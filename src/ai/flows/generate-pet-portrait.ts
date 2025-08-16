@@ -35,10 +35,10 @@ const generatePetPortraitFlow = ai.defineFlow(
         throw new Error("A human was detected in the photo. Please upload a picture of a pet.");
     }
 
-    const { media } = await ai.generate({
+    const { media, usage } = await ai.generate({
         model: 'googleai/gemini-2.0-flash-preview-image-generation',
         prompt: [
-            { text: `Analyze the provided image to identify the pet. Create a photorealistic, high-quality portrait by digitally adding a ${input.hatStyle} to the pet in the photo. The final image should feature the original pet. The image should be returned as a base64 encoded string.` },
+            { text: `Analyze the provided image to identify the pet. Create a photorealistic, high-quality portrait by digitally adding a ${input.hatStyle} to the pet in the photo. The final image should feature the original pet.` },
             { media: { url: input.photoDataUri } }
         ],
         config: {
@@ -49,8 +49,26 @@ const generatePetPortraitFlow = ai.defineFlow(
     if (!media.url) {
       throw new Error('Failed to generate the pet portrait.');
     }
+    
+    // The generated media.url is a temporary URL. We need to fetch it immediately
+    // and convert it to a Base64 data URI to ensure it's usable by the client and for storage.
+    let fetchedImage: Response;
+    try {
+        fetchedImage = await fetch(media.url);
+        if (!fetchedImage.ok) {
+            throw new Error(`Failed to fetch generated image. Status: ${fetchedImage.status}`);
+        }
+    } catch (e: any) {
+        console.error("Error fetching generated image from temporary URL", e);
+        throw new Error("Could not retrieve the generated image from the AI service.");
+    }
+    
+    const imageBuffer = await fetchedImage.arrayBuffer();
+    const imageBase64 = Buffer.from(imageBuffer).toString('base64');
+    const imageMimeType = fetchedImage.headers.get('Content-Type') || 'image/png';
+    const portraitDataUri = `data:${imageMimeType};base64,${imageBase64}`;
 
-    return { portraitDataUri: media.url };
+    return { portraitDataUri };
   }
 );
 
