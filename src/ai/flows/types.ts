@@ -20,9 +20,3 @@ export const GeneratePetPortraitOutputSchema = z.object({
     ),
 });
 export type GeneratePetPortraitOutput = z.infer<typeof GeneratePetPortraitOutputSchema>;
-
-export const generateFormSchema = z.object({
-  petName: z.string().min(1, "Please enter your pet's name."),
-  photoDataUri: z.string().min(1, 'Please upload a photo of your pet.'),
-  hatStyle: z.string().min(1, 'Please select or describe a hat style.'),
-});
