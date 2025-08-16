@@ -38,6 +38,7 @@ export async function generatePetPortrait(input: GeneratePetPortraitInput): Prom
 
 const humanValidationPrompt = ai.definePrompt({
     name: 'humanValidationPrompt',
+    model: 'googleai/gemini-pro-vision',
     input: { schema: z.object({ photoDataUri: z.string() }) },
     output: { schema: z.object({ isHuman: z.boolean().describe('Whether the image contains a human.') }) },
     prompt: `Analyze the provided image and determine if it contains a human face or figure. Set isHuman to true if a human is present, otherwise set it to false.
