@@ -63,6 +63,15 @@ export async function handleGeneratePortrait(
   } catch (error) {
     console.error('Error generating portrait:', error);
     const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
+    
+    // Check for the specific human detection error message
+    if (errorMessage.includes('A human was detected')) {
+        return {
+            success: false,
+            message: errorMessage,
+        };
+    }
+
     return {
       success: false,
       message: `Generation failed: ${errorMessage}`,
