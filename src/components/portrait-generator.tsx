@@ -100,6 +100,8 @@ export default function PortraitGenerator() {
   const hatSelectionRef = useRef<HTMLDivElement>(null);
   
   const resetPortrait = () => {
+    // This function now only resets the visual state of the portrait,
+    // keeping the photo and pet name intact for a "remix" experience.
     if (generateState.success) {
       generateState.portraitDataUri = undefined;
       generateState.success = false;
@@ -108,6 +110,7 @@ export default function PortraitGenerator() {
     setSelectedHat('');
     setCustomHat('');
 
+    // Scroll the user back to the hat selection area.
     hatSelectionRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
   
@@ -126,6 +129,7 @@ export default function PortraitGenerator() {
         ...prev,
         { portraitDataUri: generateState.portraitDataUri!, hatStyle: getHatStyle() },
       ]);
+      // Persist pet name after generation
       if (generateState.petName) {
           setPetName(generateState.petName);
       }
