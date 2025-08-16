@@ -49,7 +49,7 @@ export default function GalleryPage() {
             The Licks & Lids Hall of Fame
           </h1>
           <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
-            Welcome to our public gallery! Admire the dapper dogs and vote for your favorite portraits.
+            Welcome to our public gallery! Admire the dapper pets and vote for your favorite portraits.
           </p>
         </div>
         
@@ -87,14 +87,14 @@ export default function GalleryPage() {
                   <div className="aspect-square relative">
                       <Image
                       src={portrait.portraitDataUri}
-                      alt={`${portrait.dogName} wearing a ${portrait.hatStyle}`}
+                      alt={`${portrait.petName} wearing a ${portrait.hatStyle}`}
                       fill
                       className="object-cover transition-transform duration-300 group-hover:scale-105"
                       />
                   </div>
                   </CardContent>
                   <CardHeader className="p-4">
-                  <CardTitle as="h3">{portrait.dogName}</CardTitle>
+                  <CardTitle as="h3">{portrait.petName}</CardTitle>
                   <CardDescription>Sporting a stylish {portrait.hatStyle}</CardDescription>
                   </CardHeader>
                   <CardFooter className="p-4 pt-0">
@@ -114,5 +114,5 @@ export default function GalleryPage() {
 
 export const metadata: Metadata = {
   title: 'Public Gallery | Licks & Lids',
-  description: 'Browse the public gallery of AI-generated dog portraits. See what others have created!',
+  description: 'Browse the public gallery of AI-generated pet portraits. See what others have created!',
 };

@@ -27,7 +27,7 @@ export function SessionGallery({ portraits }: SessionGalleryProps) {
               <div className="aspect-square relative">
                 <Image
                   src={portrait.portraitDataUri}
-                  alt={`Dog wearing ${portrait.hatStyle}`}
+                  alt={`Pet wearing ${portrait.hatStyle}`}
                   fill
                   className="object-cover transition-transform duration-300 group-hover:scale-105"
                 />

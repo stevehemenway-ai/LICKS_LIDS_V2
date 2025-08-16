@@ -8,7 +8,7 @@
 
 export interface Portrait {
     id: string;
-    dogName: string;
+    petName: string;
     hatStyle: string;
     portraitDataUri: string;
     votes: number;
@@ -17,10 +17,10 @@ export interface Portrait {
 
 // In-memory store for gallery portraits
 const galleryPortraits: Portrait[] = [
-    { id: '1', dogName: 'Buddy', hatStyle: 'Cowboy Hat', votes: 128, portraitDataUri: 'https://placehold.co/500x500.png', createdAt: new Date() },
-    { id: '2', dogName: 'Lucy', hatStyle: 'Wizard Hat', votes: 99, portraitDataUri: 'https://placehold.co/500x500.png', createdAt: new Date() },
-    { id: '3', dogName: 'Max', hatStyle: 'Top Hat', votes: 210, portraitDataUri: 'https://placehold.co/500x500.png', createdAt: new Date() },
-    { id: '4', dogName: 'Daisy', hatStyle: 'Beanie', votes: 74, portraitDataUri: 'https://placehold.co/500x500.png', createdAt: new Date() },
+    { id: '1', petName: 'Buddy', hatStyle: 'Cowboy Hat', votes: 128, portraitDataUri: 'https://placehold.co/500x500.png', createdAt: new Date() },
+    { id: '2', petName: 'Lucy', hatStyle: 'Wizard Hat', votes: 99, portraitDataUri: 'https://placehold.co/500x500.png', createdAt: new Date() },
+    { id: '3', petName: 'Max', hatStyle: 'Top Hat', votes: 210, portraitDataUri: 'https://placehold.co/500x500.png', createdAt: new Date() },
+    { id: '4', petName: 'Daisy', hatStyle: 'Beanie', votes: 74, portraitDataUri: 'https://placehold.co/500x500.png', createdAt: new Date() },
 ];
 
 
@@ -39,7 +39,7 @@ export async function getGalleryPortraits(): Promise<Portrait[]> {
  * @param data - The data for the new portrait.
  * @returns A promise that resolves when the portrait has been added.
  */
-export async function addPortraitToGallery(data: { dogName: string; hatStyle: string; portraitDataUri: string; }): Promise<void> {
+export async function addPortraitToGallery(data: { petName: string; hatStyle: string; portraitDataUri: string; }): Promise<void> {
     // Simulate async operation
     await new Promise(resolve => setTimeout(resolve, 500));
     

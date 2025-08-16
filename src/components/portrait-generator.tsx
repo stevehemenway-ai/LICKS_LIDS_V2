@@ -21,7 +21,7 @@ const initialGenerateState = {
   success: false,
   message: '',
   portraitDataUri: '',
-  dogName: '',
+  petName: '',
   hatStyle: '',
 };
 
@@ -60,7 +60,7 @@ function GenerateButton() {
   );
 }
 
-function PublishButton({ dogName, hatStyle, portraitDataUri }: { dogName?: string; hatStyle?: string; portraitDataUri?: string; }) {
+function PublishButton({ petName, hatStyle, portraitDataUri }: { petName?: string; hatStyle?: string; portraitDataUri?: string; }) {
   const { pending } = useFormStatus();
   return (
     <Button type="submit" variant="secondary" className="w-full" disabled={pending || !portraitDataUri}>
@@ -177,7 +177,7 @@ export default function PortraitGenerator() {
               <input type="hidden" name="hatStyle" value={getHatStyle()} />
 
               <div className="space-y-2">
-                <Label htmlFor="dog-photo">1. Upload a Photo</Label>
+                <Label htmlFor="pet-photo">1. Upload a Photo</Label>
                 <div
                   className="relative flex justify-center items-center w-full h-48 border-2 border-dashed rounded-lg cursor-pointer hover:border-primary transition-colors"
                   onClick={() => fileInputRef.current?.click()}
@@ -185,7 +185,7 @@ export default function PortraitGenerator() {
                   {photoPreview ? (
                     <Image
                       src={photoPreview}
-                      alt="Dog preview"
+                      alt="Pet preview"
                       fill
                       className="object-contain rounded-lg p-1"
                     />
@@ -197,8 +197,8 @@ export default function PortraitGenerator() {
                   )}
                 </div>
                 <Input
-                  id="dog-photo"
-                  name="dog-photo-file"
+                  id="pet-photo"
+                  name="pet-photo-file"
                   type="file"
                   accept="image/*"
                   ref={fileInputRef}
@@ -208,10 +208,10 @@ export default function PortraitGenerator() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="dogName">2. Name Your Dog</Label>
+                <Label htmlFor="petName">2. Name Your Pet</Label>
                 <Input
-                  id="dogName"
-                  name="dogName"
+                  id="petName"
+                  name="petName"
                   placeholder="e.g., Buddy"
                 />
               </div>
@@ -267,7 +267,7 @@ export default function PortraitGenerator() {
               ) : currentPortrait ? (
                 <Image
                   src={currentPortrait}
-                  alt="Generated dog portrait"
+                  alt="Generated pet portrait"
                   width={512}
                   height={512}
                   className="object-cover w-full h-full transition-opacity duration-500 opacity-100"
@@ -276,7 +276,7 @@ export default function PortraitGenerator() {
               ) : (
                 <div className="text-center text-muted-foreground p-8">
                   <Wand2 className="mx-auto h-16 w-16" />
-                  <p className="mt-4">Your dog's portrait awaits!</p>
+                  <p className="mt-4">Your pet's portrait awaits!</p>
                 </div>
               )}
             </div>
@@ -284,11 +284,11 @@ export default function PortraitGenerator() {
            {currentPortrait && (
             <CardFooter>
                  <form action={publishAction} className="w-full">
-                    <input type="hidden" name="dogName" value={generateState.dogName || ''} />
+                    <input type="hidden" name="petName" value={generateState.petName || ''} />
                     <input type="hidden" name="hatStyle" value={generateState.hatStyle || ''} />
                     <input type="hidden" name="portraitDataUri" value={generateState.portraitDataUri || ''} />
                     <PublishButton 
-                        dogName={generateState.dogName}
+                        petName={generateState.petName}
                         hatStyle={generateState.hatStyle}
                         portraitDataUri={generateState.portraitDataUri}
                     />

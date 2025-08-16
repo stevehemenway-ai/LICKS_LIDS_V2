@@ -1,12 +1,12 @@
 'use server';
 
 import { z } from 'zod';
-import { generateDogPortrait } from '@/ai/flows/generate-dog-portrait';
+import { generatePetPortrait } from '@/ai/flows/generate-pet-portrait';
 import { addPortraitToGallery } from '@/services/gallery.service';
 
 const generateFormSchema = z.object({
-  dogName: z.string().min(1, 'Please enter your dog\'s name.'),
-  photoDataUri: z.string().min(1, 'Please upload a photo of your dog.'),
+  petName: z.string().min(1, 'Please enter your pet\'s name.'),
+  photoDataUri: z.string().min(1, 'Please upload a photo of your pet.'),
   hatStyle: z.string().min(1, 'Please describe the hat style.'),
 });
 
@@ -14,7 +14,7 @@ type GenerateFormState = {
   success: boolean;
   message: string;
   portraitDataUri?: string;
-  dogName?: string;
+  petName?: string;
   hatStyle?: string;
 };
 
@@ -24,7 +24,7 @@ export async function handleGeneratePortrait(
 ): Promise<GenerateFormState> {
   try {
     const validatedFields = generateFormSchema.safeParse({
-      dogName: formData.get('dogName'),
+      petName: formData.get('petName'),
       photoDataUri: formData.get('photoDataUri'),
       hatStyle: formData.get('hatStyle'),
     });
@@ -36,7 +36,7 @@ export async function handleGeneratePortrait(
       };
     }
     
-    const result = await generateDogPortrait(validatedFields.data);
+    const result = await generatePetPortrait(validatedFields.data);
 
     if (!result.portraitDataUri) {
         throw new Error('AI generation failed to return a portrait.');
@@ -46,7 +46,7 @@ export async function handleGeneratePortrait(
       success: true,
       message: 'Your masterpiece is ready!',
       portraitDataUri: result.portraitDataUri,
-      dogName: validatedFields.data.dogName,
+      petName: validatedFields.data.petName,
       hatStyle: validatedFields.data.hatStyle,
     };
   } catch (error) {
@@ -60,7 +60,7 @@ export async function handleGeneratePortrait(
 }
 
 const publishFormSchema = z.object({
-    dogName: z.string(),
+    petName: z.string(),
     hatStyle: z.string(),
     portraitDataUri: z.string(),
 });
@@ -76,7 +76,7 @@ export async function handlePublishPortrait(
 ): Promise<PublishFormState> {
     try {
         const validatedFields = publishFormSchema.safeParse({
-            dogName: formData.get('dogName'),
+            petName: formData.get('petName'),
             hatStyle: formData.get('hatStyle'),
             portraitDataUri: formData.get('portraitDataUri'),
         });
