@@ -3,15 +3,28 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+  
+    // Users collection stores roles
+    match /users/{userId} {
+      // Only admins can read user roles
+      allow read: if get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+      // Only admins can write user roles
+      allow write: if get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // Portraits collection
     match /portraits/{portraitId} {
-      // Allow anyone to read the gallery portraits
-      allow get, list: if true;
-
-      // Only allow the backend to create new portraits
-      allow create: if request.auth == null; // Placeholder for server-side-only access
-
-      // Only allow updates to the 'votes' field
+      // Anyone can read portraits for the public gallery
+      allow read: if true;
+      
+      // Anyone can vote (update the votes field)
       allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['votes']);
+
+      // Any authenticated user can create a portrait
+      allow create: if request.auth != null;
+
+      // Only admins can delete portraits
+      allow delete: if get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
     }
   }
 }

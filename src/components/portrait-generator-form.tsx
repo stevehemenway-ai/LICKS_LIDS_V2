@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { Camera, Sparkles, Wand2, Share2, RefreshCw, ShoppingCart, RefreshCcw, Download } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { handleGeneratePortrait, handlePublishPortrait } from '@/app/actions';
-import type { GenerateActionResult, PublishActionResult } from '@/app/actions';
+import type { GenerateActionResult } from '@/app/actions';
 
 
 import { Button } from '@/components/ui/button';
@@ -176,7 +176,7 @@ export default function PortraitGeneratorForm() {
   const currentPetName = generatedPortrait?.petName;
 
   return (
-    <>
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
       <Card>
         <CardHeader>
           <CardTitle as="h2">Create Your Masterpiece</CardTitle>
@@ -355,6 +355,6 @@ export default function PortraitGeneratorForm() {
              )}
           </Card>
       </div>
-    </>
+    </div>
   );
 }

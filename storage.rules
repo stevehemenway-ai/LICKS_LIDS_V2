@@ -3,12 +3,19 @@ rules_version = '2';
 
 service firebase.storage {
   match /b/{bucket}/o {
-    // Allow public read access to all files in the storage bucket.
-    // This is necessary for the gallery images to be displayed.
-    // Restrict writes to be handled by server-side logic.
-    match /{allPaths=**} {
+    // Match any file in the 'portraits' directory
+    match /portraits/{imageId} {
+    
+      // Anyone can read images for the public gallery.
       allow read: if true;
-      allow write: if false; // Disallow client-side uploads
+      
+      // Only authenticated users can create/upload new images.
+      allow create: if request.auth != null;
+
+      // Only admins can delete images.
+      // This requires a custom claim or checking Firestore for the role.
+      // We will check Firestore for the admin role.
+      allow delete: if get(/databases/(default)/documents/users/$(request.auth.uid)).data.role == 'admin';
     }
   }
 }

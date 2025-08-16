@@ -16,9 +16,10 @@ import {
     orderBy,
     query,
     Timestamp,
-    serverTimestamp
+    serverTimestamp,
+    deleteDoc
 } from 'firebase/firestore';
-import { getStorage, ref, uploadString, getDownloadURL } from "firebase/storage";
+import { getStorage, ref, uploadString, getDownloadURL, deleteObject } from "firebase/storage";
 import { firebaseConfig } from '@/lib/firebase';
 
 // Initialize Firebase
@@ -94,4 +95,19 @@ export async function updateVoteCount(portraitId: string): Promise<void> {
     await updateDoc(portraitRef, {
         votes: increment(1)
     });
+}
+
+/**
+ * Deletes a portrait from Firestore and the corresponding image from Storage.
+ * @param portraitId The ID of the Firestore document.
+ * @param imageUrl The URL of the image in Firebase Storage.
+ */
+export async function deletePortraitFromGallery(portraitId: string, imageUrl: string): Promise<void> {
+    // 1. Delete the document from Firestore
+    const portraitRef = doc(db, 'portraits', portraitId);
+    await deleteDoc(portraitRef);
+
+    // 2. Delete the image from Firebase Storage
+    const storageRef = ref(storage, imageUrl);
+    await deleteObject(storageRef);
 }

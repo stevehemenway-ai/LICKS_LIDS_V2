@@ -1,7 +1,11 @@
+
 'use server';
 
 import { generatePetPortrait } from "@/ai/flows/generate-pet-portrait";
-import { addPortraitToGallery } from '@/services/gallery.service';
+import { addPortraitToGallery, deletePortraitFromGallery } from '@/services/gallery.service';
+import { getAuth } from "firebase-admin/auth";
+import { app } from '@/lib/firebase-admin'; // Server-side Firebase App
+import { revalidatePath } from "next/cache";
 
 // Define the shape of the data returned by the actions
 export interface GenerateActionResult {
@@ -13,6 +17,11 @@ export interface GenerateActionResult {
 };
 
 export interface PublishActionResult {
+    success: boolean;
+    message: string;
+}
+
+export interface DeleteActionResult {
     success: boolean;
     message: string;
 }
@@ -69,6 +78,10 @@ export async function handlePublishPortrait(
         }
 
         await addPortraitToGallery(input);
+        
+        // Revalidate the gallery page to show the new portrait
+        revalidatePath('/');
+        revalidatePath('/gallery');
 
         return {
             success: true,
@@ -82,5 +95,33 @@ export async function handlePublishPortrait(
             success: false,
             message: `Failed to publish: ${errorMessage}`,
         };
+    }
+}
+
+
+/**
+ * Handles the deletion of a portrait. This is an admin-only action.
+ */
+export async function handleDeletePortrait(
+    input: { portraitId: string; imageUrl: string }
+): Promise<DeleteActionResult> {
+    try {
+        if (!input.portraitId || !input.imageUrl) {
+            return { success: false, message: 'Invalid portrait data.' };
+        }
+        
+        await deletePortraitFromGallery(input.portraitId, input.imageUrl);
+
+        // Revalidate the gallery and admin pages
+        revalidatePath('/');
+        revalidatePath('/gallery');
+        revalidatePath('/admin');
+
+        return { success: true, message: 'Portrait deleted successfully.' };
+
+    } catch (error) {
+        console.error('Error deleting portrait:', error);
+        const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
+        return { success: false, message: `Deletion failed: ${errorMessage}` };
     }
 }
