@@ -6,7 +6,7 @@ import { generatePetPortrait } from '@/ai/flows/generate-pet-portrait';
 import { addPortraitToGallery } from '@/services/gallery.service';
 
 const generateFormSchema = z.object({
-  petName: z.string().min(1, 'Please enter your pet\'s name.'),
+  petName: z.string(),
   photoDataUri: z.string().min(1, 'Please upload a photo of your pet.'),
   hatStyle: z.string().min(1, 'Please describe the hat style.'),
 });
