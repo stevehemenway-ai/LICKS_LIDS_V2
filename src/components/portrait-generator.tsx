@@ -101,7 +101,7 @@ export default function PortraitGenerator() {
   const hatSelectionRef = useRef<HTMLDivElement>(null);
   const portraitSectionRef = useRef<HTMLDivElement>(null);
   
-  const getHatStyle = () => customHat || selectedHat;
+  const getHatStyle = () => customHat.trim() || selectedHat;
   
   const resetPortrait = () => {
     // This function now only resets the visual state of the portrait,
@@ -154,7 +154,7 @@ export default function PortraitGenerator() {
     if (generateState.success && generateState.portraitDataUri) {
       portraitSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
-  }, [generateState.success, generateState.portraitDataUri]);
+  }, [generateState]);
 
 
   useEffect(() => {
