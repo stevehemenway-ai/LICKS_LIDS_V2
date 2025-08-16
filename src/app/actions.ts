@@ -51,7 +51,6 @@ export async function handleGeneratePortrait(
         };
     }
     
-    // The petName is now guaranteed to be a non-empty string.
     const generationInput = validatedFields.data;
     
     const result = await generatePetPortrait(generationInput);
