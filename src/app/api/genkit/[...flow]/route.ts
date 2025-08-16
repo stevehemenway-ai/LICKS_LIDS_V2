@@ -10,6 +10,5 @@ import {nextJsApiHandler} from '@genkit-ai/next/server';
 import '@/ai/flows/generate-pet-portrait';
 
 export const POST = nextJsApiHandler({
-  plugins: ai.getPlugins(),
-  flows: ai.getFlows(),
+  ai,
 });
