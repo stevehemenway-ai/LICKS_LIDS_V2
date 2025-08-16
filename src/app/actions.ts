@@ -6,7 +6,7 @@ import { generatePetPortrait } from '@/ai/flows/generate-pet-portrait';
 import { addPortraitToGallery } from '@/services/gallery.service';
 
 const generateFormSchema = z.object({
-  petName: z.string(),
+  petName: z.string().optional(),
   photoDataUri: z.string().min(1, 'Please upload a photo of your pet.'),
   hatStyle: z.string().min(1, 'Please describe the hat style.'),
 });
@@ -37,7 +37,13 @@ export async function handleGeneratePortrait(
       };
     }
     
-    const result = await generatePetPortrait(validatedFields.data);
+    // Ensure petName is a string, even if it's empty, before passing to the AI flow.
+    const generationInput = {
+        ...validatedFields.data,
+        petName: validatedFields.data.petName || '',
+    };
+    
+    const result = await generatePetPortrait(generationInput);
 
     if (!result.portraitDataUri) {
         throw new Error('AI generation failed to return a portrait.');
