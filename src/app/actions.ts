@@ -7,7 +7,7 @@ import { generatePetPortrait } from '@/ai/flows/generate-pet-portrait';
 import { addPortraitToGallery } from '@/services/gallery.service';
 
 const generateFormSchema = z.object({
-  petName: z.string().optional(),
+  petName: z.string().min(1, "Please enter your pet's name."),
   photoDataUri: z.string().min(1, 'Please upload a photo of your pet.'),
   hatStyle: z.string().min(1, 'Please select or describe a hat style.'),
 });
@@ -33,7 +33,11 @@ export async function handleGeneratePortrait(
 
     if (!validatedFields.success) {
         const issues = validatedFields.error.issues;
-        // Prioritize photo missing, then hat missing.
+        // Check for specific errors and return tailored messages
+        const petNameIssue = issues.find(i => i.path.includes('petName'));
+        if (petNameIssue) {
+            return { success: false, message: petNameIssue.message };
+        }
         const photoIssue = issues.find(i => i.path.includes('photoDataUri'));
         if (photoIssue) {
             return { success: false, message: photoIssue.message };
@@ -48,11 +52,8 @@ export async function handleGeneratePortrait(
         };
     }
     
-    // Ensure petName is a string, even if it's empty, before passing to the AI flow.
-    const generationInput = {
-        ...validatedFields.data,
-        petName: validatedFields.data.petName || '',
-    };
+    // The petName is now guaranteed to be a non-empty string.
+    const generationInput = validatedFields.data;
     
     const result = await generatePetPortrait(generationInput);
 
