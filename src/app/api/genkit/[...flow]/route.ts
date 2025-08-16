@@ -4,16 +4,9 @@
  * It is also used by the Genkit developer UI.
  */
 import { nextJsApiHandler } from '@genkit-ai/next/server';
-import { genkit } from 'genkit';
-import { googleAI } from '@genkit-ai/googleai';
-import next from '@genkit-ai/next';
+import { ai } from '@/ai/genkit';
 
 // Import flows so that they are registered with Genkit.
 import '@/ai/flows/generate-pet-portrait';
-
-const ai = genkit({
-    plugins: [googleAI(), next()],
-});
-
 
 export const POST = nextJsApiHandler({ai});
