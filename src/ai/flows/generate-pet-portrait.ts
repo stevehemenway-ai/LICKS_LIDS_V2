@@ -26,32 +26,16 @@ const generatePetPortraitFlow = ai.defineFlow(
             { media: { url: input.photoDataUri } }
         ],
         config: {
-            responseModalities: ['TEXT', 'IMAGE'],
+            responseModalities: ['IMAGE'], // Request only image modality
         },
     });
 
-    if (!media.url) {
+    const portraitDataUri = media?.url;
+
+    if (!portraitDataUri) {
       throw new Error('Failed to generate the pet portrait.');
     }
     
-    // The generated media.url is a temporary URL. We must fetch it immediately
-    // and convert it to a Base64 data URI to ensure it's usable by the client and for storage.
-    let fetchedImage: Response;
-    try {
-        fetchedImage = await fetch(media.url);
-        if (!fetchedImage.ok) {
-            throw new Error(`Failed to fetch generated image. Status: ${fetchedImage.status}`);
-        }
-    } catch (e: any) {
-        console.error("Error fetching generated image from temporary URL", e);
-        throw new Error("Could not retrieve the generated image from the AI service.");
-    }
-    
-    const imageBuffer = await fetchedImage.arrayBuffer();
-    const imageBase64 = Buffer.from(imageBuffer).toString('base64');
-    const imageMimeType = fetchedImage.headers.get('Content-Type') || 'image/png';
-    const portraitDataUri = `data:${imageMimeType};base64,${imageBase64}`;
-
     return { portraitDataUri };
   }
 );
