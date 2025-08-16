@@ -1,4 +1,3 @@
-
 'use server';
 
 import { z } from 'zod';
@@ -6,10 +5,29 @@ import { generatePetPortrait } from "@/ai/flows/generate-pet-portrait";
 import { addPortraitToGallery } from '@/services/gallery.service';
 import { generateFormSchema } from '@/ai/flows/types';
 import PortraitGeneratorForm from "./portrait-generator-form";
-import type { GenerateFormState, PublishFormState } from "@/app/actions";
 
+// Define the state types directly in this file
+export type GenerateFormState = {
+  success: boolean;
+  message: string;
+  portraitDataUri?: string;
+  petName?: string;
+  hatStyle?: string;
+};
 
-async function handleGeneratePortrait(
+export type PublishFormState = {
+    success: boolean;
+    message: string;
+}
+
+const publishFormSchema = z.object({
+    petName: z.string(),
+    hatStyle: z.string(),
+    portraitDataUri: z.string(),
+});
+
+// SERVER ACTION 1: Must be async
+export async function handleGeneratePortrait(
   prevState: GenerateFormState,
   formData: FormData
 ): Promise<GenerateFormState> {
@@ -24,22 +42,19 @@ async function handleGeneratePortrait(
         const issues = validatedFields.error.issues;
         const petNameIssue = issues.find(i => i.path.includes('petName'));
         if (petNameIssue) {
-            return { success: false, message: petNameIssue.message, portraitDataUri: '', petName: '', hatStyle: '' };
+            return { success: false, message: petNameIssue.message };
         }
         const photoIssue = issues.find(i => i.path.includes('photoDataUri'));
         if (photoIssue) {
-            return { success: false, message: photoIssue.message, portraitDataUri: '', petName: '', hatStyle: '' };
+            return { success: false, message: photoIssue.message };
         }
         const hatIssue = issues.find(i => i.path.includes('hatStyle'));
         if (hatIssue) {
-            return { success: false, message: hatIssue.message, portraitDataUri: '', petName: '', hatStyle: '' };
+            return { success: false, message: hatIssue.message };
         }
         return {
             success: false,
             message: 'Invalid form data. Please check your inputs.',
-            portraitDataUri: '',
-            petName: '',
-            hatStyle: '',
         };
     }
     
@@ -65,20 +80,13 @@ async function handleGeneratePortrait(
     return {
       success: false,
       message: `Generation failed: ${errorMessage}`,
-      portraitDataUri: '',
-      petName: '',
-      hatStyle: '',
     };
   }
 }
 
-const publishFormSchema = z.object({
-    petName: z.string(),
-    hatStyle: z.string(),
-    portraitDataUri: z.string(),
-});
 
-async function handlePublishPortrait(
+// SERVER ACTION 2: Must be async
+export async function handlePublishPortrait(
     prevState: PublishFormState,
     formData: FormData,
 ): Promise<PublishFormState> {
