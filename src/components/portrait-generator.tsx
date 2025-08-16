@@ -126,14 +126,8 @@ export default function PortraitGenerator() {
   }, []);
 
   useEffect(() => {
-    // Scroll down to the portrait section only when generation starts and there are no validation errors.
-    if (isGenerating && generateState.message === '') {
-        portraitSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-  }, [isGenerating, generateState.message]);
-
-  useEffect(() => {
     if (generateState.success && generateState.portraitDataUri) {
+      portraitSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       setGeneratedPortraits((prev) => [
         ...prev,
         { portraitDataUri: generateState.portraitDataUri!, hatStyle: getHatStyle() },
@@ -365,5 +359,3 @@ export default function PortraitGenerator() {
     </>
   );
 }
-
-    
