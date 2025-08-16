@@ -35,10 +35,11 @@ const allHatOptions = [
   'Graduation Cap', 'Sombrero', 'Wizard Hat', 'Chef Hat', 'Sailor Hat', 
   'Detective Hat', 'Propeller Beanie', 'Crown', 'Viking Helmet', 'Pirate Hat',
   'Hard Hat', 'Jester Hat', 'Bowler Hat', 'Fedora', 'Santa Hat', 'Elf Hat',
-  'Newsboy Cap', 'Turban', 'Ushanka', 'Safari Helmet', 'Mortar Board'
+  'Newsboy Cap', 'Turban', 'Ushanka', 'Safari Helmet', 'Mortar Board',
+  'Party Hat', 'Tricorne', 'Pork Pie Hat', 'Kepi', 'Deerstalker'
 ];
 
-const HATS_TO_SHOW = 7;
+const HATS_TO_SHOW = 15;
 
 function GenerateButton() {
   const { pending } = useFormStatus();
@@ -119,6 +120,7 @@ export default function PortraitGenerator() {
         variant: 'destructive',
       });
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [generateState, toast]);
 
   useEffect(() => {
@@ -144,13 +146,17 @@ export default function PortraitGenerator() {
   };
 
   const getHatStyle = () => {
-    if (selectedHat === 'Custom') return customHat;
-    if (selectedHat === 'None') return 'no hat';
-    return selectedHat;
+    return customHat || selectedHat;
   };
 
   const handleHatSelect = (hat: string) => {
     setSelectedHat(hat);
+    setCustomHat('');
+  }
+  
+  const handleCustomHatChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+      setCustomHat(e.target.value);
+      setSelectedHat('');
   }
 
   const currentPortrait = generateState.success ? generateState.portraitDataUri : undefined;
@@ -231,30 +237,14 @@ export default function PortraitGenerator() {
                     <RefreshCw className="mr-2 h-4 w-4" />
                     More Choices
                   </Button>
-                  <Button
-                    type="button"
-                    variant={selectedHat === 'Custom' ? 'default' : 'outline'}
-                    onClick={() => handleHatSelect('Custom')}
-                  >
-                    Custom...
-                  </Button>
-                   <Button
-                    type="button"
-                    variant={selectedHat === 'None' ? 'default' : 'outline'}
-                    onClick={() => handleHatSelect('None')}
-                  >
-                    None
-                  </Button>
                 </div>
-                {selectedHat === 'Custom' && (
-                  <Textarea
+                 <Textarea
                     name="customHatStyle"
-                    placeholder="Describe the hat in detail (e.g., 'a funky rainbow propeller hat with a blue brim')"
+                    placeholder="...or describe a custom hat in detail (e.g., 'a funky rainbow propeller hat')"
                     value={customHat}
-                    onChange={(e) => setCustomHat(e.target.value)}
+                    onChange={handleCustomHatChange}
                     className="mt-2"
                   />
-                )}
               </div>
 
               <GenerateButton />
