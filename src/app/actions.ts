@@ -9,7 +9,7 @@ import { addPortraitToGallery } from '@/services/gallery.service';
 const generateFormSchema = z.object({
   petName: z.string().optional(),
   photoDataUri: z.string().min(1, 'Please upload a photo of your pet.'),
-  hatStyle: z.string().min(1, 'Please describe the hat style.'),
+  hatStyle: z.string().min(1, 'Please select or describe a hat style.'),
 });
 
 type GenerateFormState = {
@@ -32,10 +32,20 @@ export async function handleGeneratePortrait(
     });
 
     if (!validatedFields.success) {
-      return {
-        success: false,
-        message: 'Invalid form data. Please check your inputs.',
-      };
+        const issues = validatedFields.error.issues;
+        // Prioritize photo missing, then hat missing.
+        const photoIssue = issues.find(i => i.path.includes('photoDataUri'));
+        if (photoIssue) {
+            return { success: false, message: photoIssue.message };
+        }
+        const hatIssue = issues.find(i => i.path.includes('hatStyle'));
+        if (hatIssue) {
+            return { success: false, message: hatIssue.message };
+        }
+        return {
+            success: false,
+            message: 'Invalid form data. Please check your inputs.',
+        };
     }
     
     // Ensure petName is a string, even if it's empty, before passing to the AI flow.
