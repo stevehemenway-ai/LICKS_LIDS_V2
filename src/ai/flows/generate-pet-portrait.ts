@@ -35,7 +35,7 @@ const generatePetPortraitFlow = ai.defineFlow(
         throw new Error("A human was detected in the photo. Please upload a picture of a pet.");
     }
 
-    const { media, usage } = await ai.generate({
+    const { media } = await ai.generate({
         model: 'googleai/gemini-2.0-flash-preview-image-generation',
         prompt: [
             { text: `Analyze the provided image to identify the pet. Create a photorealistic, high-quality portrait by digitally adding a ${input.hatStyle} to the pet in the photo. The final image should feature the original pet.` },
@@ -50,7 +50,7 @@ const generatePetPortraitFlow = ai.defineFlow(
       throw new Error('Failed to generate the pet portrait.');
     }
     
-    // The generated media.url is a temporary URL. We need to fetch it immediately
+    // The generated media.url is a temporary URL. We must fetch it immediately
     // and convert it to a Base64 data URI to ensure it's usable by the client and for storage.
     let fetchedImage: Response;
     try {
