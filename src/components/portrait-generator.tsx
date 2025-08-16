@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
 import Image from 'next/image';
-import { Camera, Sparkles, Wand2, Share2, CheckCircle2 } from 'lucide-react';
+import { Camera, Sparkles, Wand2, Share2, RefreshCw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { handleGeneratePortrait, handlePublishPortrait } from '@/app/actions';
 
@@ -30,18 +30,15 @@ const initialPublishState = {
     message: '',
 }
 
-const hatOptions = [
-  'Top Hat',
-  'Cowboy Hat',
-  'Beanie',
-  'Fez',
-  'Beret',
-  'Baseball Cap',
-  'Graduation Cap',
-  'Sombrero',
-  'Wizard Hat',
-  'None',
+const allHatOptions = [
+  'Top Hat', 'Cowboy Hat', 'Beanie', 'Fez', 'Beret', 'Baseball Cap', 
+  'Graduation Cap', 'Sombrero', 'Wizard Hat', 'Chef Hat', 'Sailor Hat', 
+  'Detective Hat', 'Propeller Beanie', 'Crown', 'Viking Helmet', 'Pirate Hat',
+  'Hard Hat', 'Jester Hat', 'Bowler Hat', 'Fedora', 'Santa Hat', 'Elf Hat',
+  'Newsboy Cap', 'Turban', 'Ushanka', 'Safari Helmet', 'Mortar Board'
 ];
+
+const HATS_TO_SHOW = 7;
 
 function GenerateButton() {
   const { pending } = useFormStatus();
@@ -91,12 +88,22 @@ export default function PortraitGenerator() {
   const [photoDataUri, setPhotoDataUri] = useState<string>('');
   const [selectedHat, setSelectedHat] = useState('');
   const [customHat, setCustomHat] = useState('');
+  const [displayedHats, setDisplayedHats] = useState<string[]>([]);
   const [generatedPortraits, setGeneratedPortraits] = useState<
     { portraitDataUri: string; hatStyle: string }[]
   >([]);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const generateFormRef = useRef<HTMLFormElement>(null);
+
+  const shuffleHats = () => {
+    const shuffled = [...allHatOptions].sort(() => 0.5 - Math.random());
+    setDisplayedHats(shuffled.slice(0, HATS_TO_SHOW));
+  };
+  
+  useEffect(() => {
+    shuffleHats();
+  }, []);
 
   useEffect(() => {
     if (generateState.success && generateState.portraitDataUri) {
@@ -206,7 +213,7 @@ export default function PortraitGenerator() {
              <div className="space-y-4">
                 <Label>3. Choose a Hat Style</Label>
                 <div className="flex flex-wrap gap-2">
-                  {hatOptions.map((hat) => (
+                  {displayedHats.map((hat) => (
                     <Button
                       key={hat}
                       type="button"
@@ -218,10 +225,25 @@ export default function PortraitGenerator() {
                   ))}
                   <Button
                     type="button"
+                    variant="secondary"
+                    onClick={shuffleHats}
+                  >
+                    <RefreshCw className="mr-2 h-4 w-4" />
+                    More Choices
+                  </Button>
+                  <Button
+                    type="button"
                     variant={selectedHat === 'Custom' ? 'default' : 'outline'}
                     onClick={() => handleHatSelect('Custom')}
                   >
                     Custom...
+                  </Button>
+                   <Button
+                    type="button"
+                    variant={selectedHat === 'None' ? 'default' : 'outline'}
+                    onClick={() => handleHatSelect('None')}
+                  >
+                    None
                   </Button>
                 </div>
                 {selectedHat === 'Custom' && (
