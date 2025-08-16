@@ -149,7 +149,7 @@ export default function PortraitGenerator() {
   }, [generateState]);
 
    useEffect(() => {
-    if (generateState?.portraitDataUri && !generateState.message) {
+    if (generateState.success && generateState.portraitDataUri) {
       portraitSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   }, [generateState]);
