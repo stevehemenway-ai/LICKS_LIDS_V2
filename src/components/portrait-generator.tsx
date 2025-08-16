@@ -3,12 +3,12 @@
 import { useState, useRef, useEffect, useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
 import Image from 'next/image';
-import { Camera, Sparkles, Wand2 } from 'lucide-react';
+import { Camera, Sparkles, Wand2, Share2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { handleGeneratePortrait } from '@/app/actions';
+import { handleGeneratePortrait, handlePublishPortrait } from '@/app/actions';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -21,11 +21,18 @@ import {
 import { SessionGallery } from '@/components/session-gallery';
 import { Skeleton } from '@/components/ui/skeleton';
 
-const initialState = {
+const initialGenerateState = {
   success: false,
   message: '',
   portraitDataUri: '',
+  dogName: '',
+  hatStyle: '',
 };
+
+const initialPublishState = {
+    success: false,
+    message: '',
+}
 
 const hatOptions = [
   'Top Hat',
@@ -39,7 +46,7 @@ const hatOptions = [
   'Wizard Hat',
 ];
 
-function SubmitButton() {
+function GenerateButton() {
   const { pending } = useFormStatus();
   return (
     <Button type="submit" variant="accent" className="w-full" disabled={pending}>
@@ -58,8 +65,30 @@ function SubmitButton() {
   );
 }
 
+function PublishButton({ dogName, hatStyle, portraitDataUri }: { dogName?: string; hatStyle?: string; portraitDataUri?: string; }) {
+  const { pending } = useFormStatus();
+  return (
+    <Button type="submit" variant="secondary" className="w-full" disabled={pending || !portraitDataUri}>
+      {pending ? (
+          <>
+            <Sparkles className="mr-2 h-4 w-4 animate-spin" />
+            Publishing...
+          </>
+      ) : (
+          <>
+            <Share2 className="mr-2 h-4 w-4" />
+            Publish to Gallery
+          </>
+      )}
+    </Button>
+  );
+}
+
+
 export default function PortraitGenerator() {
-  const [state, formAction] = useActionState(handleGeneratePortrait, initialState);
+  const [generateState, generateAction] = useActionState(handleGeneratePortrait, initialGenerateState);
+  const [publishState, publishAction] = useActionState(handlePublishPortrait, initialPublishState);
+
   const { toast } = useToast();
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [photoDataUri, setPhotoDataUri] = useState<string>('');
@@ -68,31 +97,35 @@ export default function PortraitGenerator() {
   const [generatedPortraits, setGeneratedPortraits] = useState<
     { portraitDataUri: string; hatStyle: string }[]
   >([]);
-  const { pending } = useFormStatus();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const formRef = useRef<HTMLFormElement>(null);
+  const generateFormRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
-    if (state.success && state.portraitDataUri) {
+    if (generateState.success && generateState.portraitDataUri) {
       setGeneratedPortraits((prev) => [
         ...prev,
-        { portraitDataUri: state.portraitDataUri!, hatStyle: getHatStyle() },
+        { portraitDataUri: generateState.portraitDataUri!, hatStyle: getHatStyle() },
       ]);
-      formRef.current?.reset();
-      setPhotoPreview(null);
-      setPhotoDataUri('');
-      setSelectedHat('');
-      setCustomHat('');
     }
-    if (state.message && !pending) {
+    if (generateState.message && !generateState.success) {
        toast({
-        title: state.success ? 'Success!' : 'Oops!',
-        description: state.message,
-        variant: state.success ? 'default' : 'destructive',
+        title: 'Oops!',
+        description: generateState.message,
+        variant: 'destructive',
       });
     }
-  }, [state, toast, pending]);
+  }, [generateState, toast]);
+
+  useEffect(() => {
+      if (publishState.message) {
+          toast({
+              title: publishState.success ? 'Success!' : 'Oops!',
+              description: publishState.message,
+              variant: publishState.success ? 'default' : 'destructive',
+          });
+      }
+  }, [publishState, toast])
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -110,7 +143,9 @@ export default function PortraitGenerator() {
     return selectedHat === 'Custom' ? customHat : selectedHat;
   };
 
-  const currentPortrait = state.success ? state.portraitDataUri : generatedPortraits[generatedPortraits.length - 1]?.portraitDataUri;
+  const currentPortrait = generateState.success ? generateState.portraitDataUri : undefined;
+
+  const { pending: isGenerating } = useFormStatus();
 
   return (
     <>
@@ -121,7 +156,7 @@ export default function PortraitGenerator() {
             <CardDescription>Follow these simple steps to get a portrait of your furry friend.</CardDescription>
           </CardHeader>
           <CardContent>
-            <form ref={formRef} action={formAction} className="space-y-6">
+            <form ref={generateFormRef} action={generateAction} className="space-y-6">
               <input type="hidden" name="photoDataUri" value={photoDataUri} />
               <input type="hidden" name="hatStyle" value={getHatStyle()} />
 
@@ -193,7 +228,7 @@ export default function PortraitGenerator() {
                 )}
               </div>
 
-              <SubmitButton />
+              <GenerateButton />
             </form>
           </CardContent>
         </Card>
@@ -205,7 +240,7 @@ export default function PortraitGenerator() {
           </CardHeader>
           <CardContent>
             <div className="aspect-square w-full rounded-lg bg-muted flex items-center justify-center overflow-hidden">
-              {pending ? (
+              {isGenerating ? (
                 <div className="w-full h-full flex flex-col items-center justify-center space-y-4">
                   <Skeleton className="h-full w-full" />
                   <p className="text-muted-foreground animate-pulse">Dipping the brushes...</p>
@@ -227,6 +262,20 @@ export default function PortraitGenerator() {
               )}
             </div>
           </CardContent>
+           {currentPortrait && (
+            <CardFooter>
+                 <form action={publishAction} className="w-full">
+                    <input type="hidden" name="dogName" value={generateState.dogName} />
+                    <input type="hidden" name="hatStyle" value={generateState.hatStyle} />
+                    <input type="hidden" name="portraitDataUri" value={generateState.portraitDataUri} />
+                    <PublishButton 
+                        dogName={generateState.dogName}
+                        hatStyle={generateState.hatStyle}
+                        portraitDataUri={generateState.portraitDataUri}
+                    />
+                </form>
+            </CardFooter>
+           )}
         </Card>
       </div>
 

@@ -1,29 +1,41 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { Heart } from 'lucide-react';
+import { Heart, Loader2 } from 'lucide-react';
+import { getGalleryPortraits, type Portrait } from '@/services/gallery.service';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Skeleton } from '@/components/ui/skeleton';
 
-const mockPortraits = [
-  { id: 1, name: 'Buddy', hat: 'Cowboy Hat', votes: 128, image: 'https://placehold.co/500x500.png', dataAiHint: 'dog cowboy' },
-  { id: 2, name: 'Lucy', hat: 'Wizard Hat', votes: 99, image: 'https://placehold.co/500x500.png', dataAiHint: 'dog wizard' },
-  { id: 3, name: 'Max', hat: 'Top Hat', votes: 210, image: 'https://placehold.co/500x500.png', dataAiHint: 'dog tophat' },
-  { id: 4, name: 'Daisy', hat: 'Beanie', votes: 74, image: 'https://placehold.co/500x500.png', dataAiHint: 'dog beanie' },
-  { id: 5, name: 'Rocky', hat: 'Fez', votes: 56, image: 'https://placehold.co/500x500.png', dataAiHint: 'dog fez' },
-  { id: 6, name: 'Sadie', hat: 'Graduation Cap', votes: 150, image: 'https://placehold.co/500x500.png', dataAiHint: 'dog graduation' },
-  { id: 7, name: 'Charlie', hat: 'Sombrero', votes: 189, image: 'https://placehold.co/500x500.png', dataAiHint: 'dog sombrero' },
-  { id: 8, name: 'Molly', hat: 'Baseball Cap', votes: 88, image: 'https://placehold.co/500x500.png', dataAiHint: 'dog cap' },
-];
 
 export default function GalleryPage() {
-    const [votes, setVotes] = useState(mockPortraits.reduce((acc, p) => ({ ...acc, [p.id]: p.votes }), {} as Record<number, number>));
-    const [voted, setVoted] = useState<Record<number, boolean>>({});
+    const [portraits, setPortraits] = useState<Portrait[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const [votes, setVotes] = useState<Record<string, number>>({});
+    const [voted, setVoted] = useState<Record<string, boolean>>({});
 
-    const handleVote = (id: number) => {
+    useEffect(() => {
+        const fetchPortraits = async () => {
+            try {
+                const fetchedPortraits = await getGalleryPortraits();
+                setPortraits(fetchedPortraits);
+                const initialVotes = fetchedPortraits.reduce((acc, p) => ({ ...acc, [p.id]: p.votes }), {} as Record<string, number>);
+                setVotes(initialVotes);
+            } catch (err) {
+                setError('Failed to fetch portraits. Please try again later.');
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchPortraits();
+    }, []);
+
+    const handleVote = (id: string) => {
         if (voted[id]) return;
         setVotes(prev => ({ ...prev, [id]: prev[id] + 1 }));
         setVoted(prev => ({ ...prev, [id]: true }));
@@ -39,34 +51,61 @@ export default function GalleryPage() {
           Welcome to our public gallery! Admire the dapper dogs and vote for your favorite portraits.
         </p>
       </div>
+      
+      {loading && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              {Array.from({ length: 8 }).map((_, i) => (
+                  <Card key={i} className="overflow-hidden">
+                      <CardContent className="p-0">
+                          <Skeleton className="aspect-square w-full" />
+                      </CardContent>
+                      <CardHeader className="p-4">
+                          <Skeleton className="h-6 w-3/4" />
+                          <Skeleton className="h-4 w-1/2" />
+                      </CardHeader>
+                      <CardFooter className="p-4 pt-0">
+                          <Skeleton className="h-10 w-full" />
+                      </CardFooter>
+                  </Card>
+              ))}
+          </div>
+      )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {mockPortraits.map((portrait) => (
-          <Card key={portrait.id} className="overflow-hidden group">
-            <CardContent className="p-0">
-               <div className="aspect-square relative">
-                <Image
-                  src={portrait.image}
-                  alt={`${portrait.name} wearing a ${portrait.hat}`}
-                  data-ai-hint={portrait.dataAiHint}
-                  fill
-                  className="object-cover transition-transform duration-300 group-hover:scale-105"
-                />
-              </div>
-            </CardContent>
-            <CardHeader className="p-4">
-              <CardTitle>{portrait.name}</CardTitle>
-              <CardDescription>Sporting a stylish {portrait.hat}</CardDescription>
-            </CardHeader>
-            <CardFooter className="p-4 pt-0">
-               <Button onClick={() => handleVote(portrait.id)} variant={voted[portrait.id] ? "secondary" : "default"} className="w-full" disabled={voted[portrait.id]}>
-                <Heart className={cn("mr-2 h-4 w-4", voted[portrait.id] ? "fill-red-500 text-red-500" : "")} />
-                {voted[portrait.id] ? 'Voted!' : 'Vote'} ({votes[portrait.id]})
-              </Button>
-            </CardFooter>
-          </Card>
-        ))}
-      </div>
+      {error && (
+        <Alert variant="destructive" className="max-w-2xl mx-auto">
+            <AlertTitle>Error</AlertTitle>
+            <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+
+      {!loading && !error && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {portraits.map((portrait) => (
+            <Card key={portrait.id} className="overflow-hidden group">
+                <CardContent className="p-0">
+                <div className="aspect-square relative">
+                    <Image
+                    src={portrait.portraitDataUri}
+                    alt={`${portrait.dogName} wearing a ${portrait.hatStyle}`}
+                    fill
+                    className="object-cover transition-transform duration-300 group-hover:scale-105"
+                    />
+                </div>
+                </CardContent>
+                <CardHeader className="p-4">
+                <CardTitle>{portrait.dogName}</CardTitle>
+                <CardDescription>Sporting a stylish {portrait.hatStyle}</CardDescription>
+                </CardHeader>
+                <CardFooter className="p-4 pt-0">
+                <Button onClick={() => handleVote(portrait.id)} variant={voted[portrait.id] ? "secondary" : "default"} className="w-full" disabled={voted[portrait.id]}>
+                    <Heart className={cn("mr-2 h-4 w-4", voted[portrait.id] ? "fill-red-500 text-red-500" : "")} />
+                    {voted[portrait.id] ? 'Voted!' : 'Vote'} ({votes[portrait.id] || 0})
+                </Button>
+                </CardFooter>
+            </Card>
+            ))}
+        </div>
+      )}
     </div>
   );
 }
