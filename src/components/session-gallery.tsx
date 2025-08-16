@@ -17,9 +17,14 @@ export function SessionGallery({ portraits }: SessionGalleryProps) {
 
   return (
     <div className="mt-16">
-      <h2 className="text-3xl font-bold text-center font-headline mb-8">
-        Your Session Gallery
-      </h2>
+      <div className="text-center mb-8">
+        <h2 className="text-3xl font-bold font-headline">
+          Your Session Gallery
+        </h2>
+        <p className="text-xs text-muted-foreground mt-2">
+            As an Amazon Associate, we earn from qualifying purchases.
+        </p>
+      </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {portraits.map((portrait, index) => (
           <Card key={index} className="overflow-hidden group">

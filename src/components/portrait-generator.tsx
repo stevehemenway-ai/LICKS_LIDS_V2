@@ -349,7 +349,9 @@ export default function PortraitGenerator() {
                             <Download /> Download
                         </Button>
                     </div>
-
+                    <p className="text-xs text-muted-foreground text-center w-full pt-2">
+                        As an Amazon Associate, we earn from qualifying purchases.
+                    </p>
                 </CardFooter>
                )}
             </Card>

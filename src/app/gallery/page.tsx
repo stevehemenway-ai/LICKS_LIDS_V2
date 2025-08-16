@@ -95,41 +95,48 @@ export default function GalleryPage() {
         )}
 
         {!loading && !error && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {portraits.map((portrait) => (
-              <Card key={portrait.id} className="overflow-hidden group">
-                  <CardContent className="p-0">
-                  <div className="aspect-square relative">
-                      <Image
-                      src={portrait.portraitDataUri}
-                      alt={`${portrait.petName} wearing a ${portrait.hatStyle}`}
-                      fill
-                      className="object-cover transition-transform duration-300 group-hover:scale-105"
-                      />
-                  </div>
-                  </CardContent>
-                  <CardHeader className="p-4">
-                  <CardTitle as="h3">{portrait.petName}</CardTitle>
-                  <CardDescription>Sporting a stylish {portrait.hatStyle}</CardDescription>
-                  </CardHeader>
-                  <CardFooter className="p-4 pt-0 flex-col gap-2">
-                    <Button onClick={() => handleVote(portrait.id)} variant={voted[portrait.id] ? "secondary" : "default"} className="w-full" disabled={voted[portrait.id]}>
-                        <Heart className={cn("mr-2 h-4 w-4", voted[portrait.id] ? "fill-red-500 text-red-500" : "")} />
-                        {voted[portrait.id] ? 'Voted!' : 'Vote'} ({votes[portrait.id] || 0})
-                    </Button>
-                    <Button asChild variant="outline" className="w-full">
-                        <a
-                         href={`https://www.amazon.com/s?k=${encodeURIComponent(portrait.hatStyle + ' for pet')}&tag=logonitro-20`}
-                         target="_blank"
-                         rel="noopener noreferrer"
-                        >
-                            <ShoppingCart /> Shop this look
-                        </a>
-                    </Button>
-                  </CardFooter>
-              </Card>
-              ))}
-          </div>
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                {portraits.map((portrait) => (
+                <Card key={portrait.id} className="overflow-hidden group">
+                    <CardContent className="p-0">
+                    <div className="aspect-square relative">
+                        <Image
+                        src={portrait.portraitDataUri}
+                        alt={`${portrait.petName} wearing a ${portrait.hatStyle}`}
+                        fill
+                        className="object-cover transition-transform duration-300 group-hover:scale-105"
+                        />
+                    </div>
+                    </CardContent>
+                    <CardHeader className="p-4">
+                    <CardTitle as="h3">{portrait.petName}</CardTitle>
+                    <CardDescription>Sporting a stylish {portrait.hatStyle}</CardDescription>
+                    </CardHeader>
+                    <CardFooter className="p-4 pt-0 flex-col gap-2">
+                      <Button onClick={() => handleVote(portrait.id)} variant={voted[portrait.id] ? "secondary" : "default"} className="w-full" disabled={voted[portrait.id]}>
+                          <Heart className={cn("mr-2 h-4 w-4", voted[portrait.id] ? "fill-red-500 text-red-500" : "")} />
+                          {voted[portrait.id] ? 'Voted!' : 'Vote'} ({votes[portrait.id] || 0})
+                      </Button>
+                      <Button asChild variant="outline" className="w-full">
+                          <a
+                           href={`https://www.amazon.com/s?k=${encodeURIComponent(portrait.hatStyle + ' for pet')}&tag=logonitro-20`}
+                           target="_blank"
+                           rel="noopener noreferrer"
+                          >
+                              <ShoppingCart /> Shop this look
+                          </a>
+                      </Button>
+                    </CardFooter>
+                </Card>
+                ))}
+            </div>
+            <div className="text-center mt-12">
+                <p className="text-xs text-muted-foreground">
+                    As an Amazon Associate, we earn from qualifying purchases.
+                </p>
+            </div>
+          </>
         )}
       </div>
     </>
