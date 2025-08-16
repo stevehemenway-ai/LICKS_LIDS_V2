@@ -130,8 +130,6 @@ export default function PortraitGenerator() {
   useEffect(() => {
     if (isGenerating || isPublishing) return;
 
-    const hatStyle = getHatStyle();
-
     if (generateState.success && generateState.portraitDataUri) {
         setGeneratedPortraits((prev) => [
             ...prev,
@@ -384,5 +382,3 @@ export default function PortraitGenerator() {
     </>
   );
 }
-
-    

@@ -120,5 +120,3 @@ export async function handlePublishPortrait(
         };
     }
 }
-
-    
