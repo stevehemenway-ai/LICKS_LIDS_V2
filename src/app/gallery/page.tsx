@@ -1,9 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import type { Metadata } from 'next';
 import Image from 'next/image';
-import { Heart, Loader2 } from 'lucide-react';
+import { Heart } from 'lucide-react';
 import { getGalleryPortraits, type Portrait } from '@/services/gallery.service';
 
 import { Button } from '@/components/ui/button';
@@ -111,8 +110,3 @@ export default function GalleryPage() {
     </>
   );
 }
-
-export const metadata: Metadata = {
-  title: 'Public Gallery | Licks & Lids',
-  description: 'Browse the public gallery of AI-generated pet portraits. See what others have created!',
-};
