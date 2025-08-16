@@ -63,18 +63,18 @@ export default function GalleryPage() {
 
   return (
     <>
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold font-headline tracking-tight lg:text-5xl">
+      <div className="container mx-auto px-4 py-4 md:py-8">
+        <div className="text-center mb-8 md:mb-12">
+          <h1 className="text-3xl md:text-4xl font-bold font-headline tracking-tight lg:text-5xl">
             The Licks & Lids Hall of Fame
           </h1>
-          <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
+          <p className="mt-4 text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
             Welcome to our public gallery! Admire the dapper pets and vote for your favorite portraits.
           </p>
         </div>
         
         {loading && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
                 {Array.from({ length: 8 }).map((_, i) => (
                     <Card key={i} className="overflow-hidden">
                         <CardContent className="p-0">
@@ -110,7 +110,7 @@ export default function GalleryPage() {
                     <p className="mt-2 text-muted-foreground">Be the first to publish a portrait!</p>
                 </div>
             ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
                     {portraits.map((portrait) => (
                     <Card key={portrait.id} className="overflow-hidden group">
                         <CardContent className="p-0">

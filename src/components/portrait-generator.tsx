@@ -46,7 +46,7 @@ const HATS_TO_SHOW = 15;
 function GenerateButton() {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" variant="accent" className="w-full" disabled={pending}>
+    <Button type="submit" variant="accent" size="lg" className="w-full" disabled={pending}>
       {pending ? (
         <>
           <Sparkles className="mr-2 h-4 w-4 animate-spin" />
@@ -152,7 +152,7 @@ export default function PortraitGenerator() {
     if (generateState.success && generateState.portraitDataUri) {
       portraitSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
-  }, [generateState]);
+  }, [generateState, generateState.portraitDataUri]);
 
 
   useEffect(() => {
@@ -232,7 +232,7 @@ export default function PortraitGenerator() {
               <div className="space-y-2">
                 <Label htmlFor="pet-photo">1. Upload a Photo</Label>
                 <div
-                  className="relative flex justify-center items-center w-full h-48 border-2 border-dashed rounded-lg cursor-pointer hover:border-primary transition-colors"
+                  className="relative flex justify-center items-center w-full h-48 md:h-64 border-2 border-dashed rounded-lg cursor-pointer hover:border-primary transition-colors"
                   onClick={() => fileInputRef.current?.click()}
                 >
                   {photoPreview ? (
@@ -345,21 +345,27 @@ export default function PortraitGenerator() {
                         <input type="hidden" name="portraitDataUri" value={currentPortrait || ''} />
                         <PublishButton />
                     </form>
-                    <div className="w-full grid grid-cols-3 gap-2">
+                    <div className="w-full grid grid-cols-1 sm:grid-cols-3 gap-2">
                         <Button asChild variant="outline" className="w-full">
                             <a
                              href={`https://www.amazon.com/s?k=${encodeURIComponent((getHatStyle() || '') + ' for pet')}&tag=logonitro-20`}
                              target="_blank"
                              rel="noopener noreferrer"
                             >
-                                <ShoppingCart /> Shop this look
+                                <ShoppingCart /> 
+                                <span className="sm:hidden">Shop</span>
+                                <span className="hidden sm:inline">Shop this look</span>
                             </a>
                         </Button>
                         <Button variant="outline" className="w-full" onClick={resetPortrait}>
-                            <RefreshCcw /> Choose another hat
+                            <RefreshCcw /> 
+                            <span className="sm:hidden">Remix</span>
+                             <span className="hidden sm:inline">Choose another hat</span>
                         </Button>
                         <Button variant="outline" className="w-full" onClick={handleDownload}>
-                            <Download /> Download
+                            <Download /> 
+                             <span className="sm:hidden">Save</span>
+                             <span className="hidden sm:inline">Download</span>
                         </Button>
                     </div>
                     <p className="text-xs text-muted-foreground text-center w-full pt-2">
