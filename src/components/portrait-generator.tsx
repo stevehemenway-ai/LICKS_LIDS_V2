@@ -99,18 +99,13 @@ export default function PortraitGenerator() {
   const generateFormRef = useRef<HTMLFormElement>(null);
   
   const resetPortrait = () => {
-    // A true reset of useActionState isn't supported directly.
-    // Instead, we create a new initial state object to effectively
-    // clear the previous result while letting the form persist.
-    const clearedState = { ...initialGenerateState, 
-      // Keep user-provided data
-      petName: generateState.petName,
-      photoDataUri: photoDataUri,
-    };
-    generateAction(new FormData()); // Trigger an update with empty data
-    // We can't directly set the state, but we can effectively reset the view
-    // by clearing the portrait URI from our local copy of the state.
-    generateState.portraitDataUri = undefined;
+    // We can't directly set the state returned by `useActionState` outside of a form action.
+    // Instead, we can effectively reset the view by clearing the portrait URI 
+    // from our local copy of the state, which will hide the generated image and its controls.
+    if (generateState.success) {
+      generateState.portraitDataUri = undefined;
+      generateState.success = false;
+    }
     
     // Clear selections to allow for a new choice
     setSelectedHat('');
@@ -133,7 +128,7 @@ export default function PortraitGenerator() {
         { portraitDataUri: generateState.portraitDataUri!, hatStyle: getHatStyle() },
       ]);
     }
-    if (generateState.message && !generateState.success) {
+    if (generateState.message && !isGenerating && !generateState.success) {
        toast({
         title: 'Oops!',
         description: generateState.message,
@@ -141,7 +136,7 @@ export default function PortraitGenerator() {
       });
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [generateState]);
+  }, [generateState, isGenerating]);
 
   useEffect(() => {
       if (publishState.message) {
