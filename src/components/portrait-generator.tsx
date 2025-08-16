@@ -24,19 +24,22 @@ async function handleGeneratePortrait(
         const issues = validatedFields.error.issues;
         const petNameIssue = issues.find(i => i.path.includes('petName'));
         if (petNameIssue) {
-            return { success: false, message: petNameIssue.message };
+            return { success: false, message: petNameIssue.message, portraitDataUri: '', petName: '', hatStyle: '' };
         }
         const photoIssue = issues.find(i => i.path.includes('photoDataUri'));
         if (photoIssue) {
-            return { success: false, message: photoIssue.message };
+            return { success: false, message: photoIssue.message, portraitDataUri: '', petName: '', hatStyle: '' };
         }
         const hatIssue = issues.find(i => i.path.includes('hatStyle'));
         if (hatIssue) {
-            return { success: false, message: hatIssue.message };
+            return { success: false, message: hatIssue.message, portraitDataUri: '', petName: '', hatStyle: '' };
         }
         return {
             success: false,
             message: 'Invalid form data. Please check your inputs.',
+            portraitDataUri: '',
+            petName: '',
+            hatStyle: '',
         };
     }
     
@@ -62,6 +65,9 @@ async function handleGeneratePortrait(
     return {
       success: false,
       message: `Generation failed: ${errorMessage}`,
+      portraitDataUri: '',
+      petName: '',
+      hatStyle: '',
     };
   }
 }
