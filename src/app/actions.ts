@@ -6,7 +6,7 @@ import { generatePetPortrait } from '@/ai/flows/generate-pet-portrait';
 import { addPortraitToGallery } from '@/services/gallery.service';
 import { generateFormSchema } from '@/ai/flows/types';
 
-type GenerateFormState = {
+export type GenerateFormState = {
   success: boolean;
   message: string;
   portraitDataUri?: string;
@@ -85,7 +85,7 @@ const publishFormSchema = z.object({
     portraitDataUri: z.string(),
 });
 
-type PublishFormState = {
+export type PublishFormState = {
     success: boolean;
     message: string;
 }

@@ -6,9 +6,8 @@
  *
  * - generatePetPortrait - A function that handles the pet portrait generation process.
  */
-import { z } from 'zod';
 import { ai } from '@/ai/genkit';
-import { GeneratePetPortraitInput, GeneratePetPortraitInputSchema, GeneratePetPortraitOutput, GeneratePetPortraitOutputSchema } from './types';
+import { GeneratePetPortraitInput, GeneratePetPortraitOutput, GeneratePetPortraitInputSchema, GeneratePetPortraitOutputSchema } from './types';
 
 
 const generatePetPortraitFlow = ai.defineFlow(
@@ -21,9 +20,12 @@ const generatePetPortraitFlow = ai.defineFlow(
     
     const { media } = await ai.generate({
         model: 'googleai/gemini-2.0-flash-preview-image-generation',
-        prompt: `A photorealistic, high-quality portrait of a ${input.petName} wearing a ${input.hatStyle}. The final image should look like a real photo.`,
+        prompt: [
+          {text: `A photorealistic, high-quality portrait of a pet named ${input.petName} wearing a ${input.hatStyle}. The final image should look like a real photo.`},
+          {media: {url: input.photoDataUri}}
+        ],
         config: {
-            responseModalities: ['IMAGE'], 
+            responseModalities: ['IMAGE', 'TEXT'], 
         },
     });
 
@@ -33,7 +35,6 @@ const generatePetPortraitFlow = ai.defineFlow(
       throw new Error('Failed to generate the pet portrait.');
     }
     
-    // The media.url from the image generation model is already a data URI
     return { portraitDataUri };
   }
 );
