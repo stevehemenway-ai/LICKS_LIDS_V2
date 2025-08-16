@@ -7,7 +7,7 @@ import { ai } from '@/ai/genkit';
 import { next } from '@genkit-ai/next';
 import { nextJsApiHandler } from '@genkit-ai/next/server';
 
-// Add the Next.js plugin for API route handling.
+// Configure the existing ai object with the Next.js plugin for API route handling.
 ai.configure({
   plugins: [...(ai.registry.getPlugins() || []), next()],
 });
