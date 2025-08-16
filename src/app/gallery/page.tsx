@@ -26,7 +26,7 @@ export default function GalleryPage() {
                 setPortraits(fetchedPortraits);
                 const initialVotes = fetchedPortraits.reduce((acc, p) => ({ ...acc, [p.id]: p.votes }), {} as Record<string, number>);
                 setVotes(initialVotes);
-                 // Check localStorage for previously voted items
+                 // Check localStorage for previously voted items *after* client-side mount.
                 const localVoted = JSON.parse(localStorage.getItem('voted_portraits') || '{}');
                 setVoted(localVoted);
             } catch (err) {
