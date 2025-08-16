@@ -1,9 +1,10 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { Heart } from 'lucide-react';
-import { getGalleryPortraits, type Portrait } from '@/services/gallery.service';
+import { Heart, ShoppingCart } from 'lucide-react';
+import { getGalleryPortraits, updateVoteCount, type Portrait } from '@/services/gallery.service';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -34,10 +35,22 @@ export default function GalleryPage() {
         fetchPortraits();
     }, []);
 
-    const handleVote = (id: string) => {
+    const handleVote = async (id: string) => {
         if (voted[id]) return;
-        setVotes(prev => ({ ...prev, [id]: prev[id] + 1 }));
+
+        // Optimistically update UI
+        setVotes(prev => ({ ...prev, [id]: (prev[id] || 0) + 1 }));
         setVoted(prev => ({ ...prev, [id]: true }));
+
+        try {
+            // Persist vote to the "backend"
+            await updateVoteCount(id);
+        } catch (err) {
+            // Revert optimistic update on error
+            setError('Failed to save vote. Please try again.');
+            setVotes(prev => ({ ...prev, [id]: prev[id] - 1 }));
+            setVoted(prev => ({ ...prev, [id]: false }));
+        }
     }
 
   return (
@@ -64,7 +77,10 @@ export default function GalleryPage() {
                             <Skeleton className="h-4 w-1/2" />
                         </CardHeader>
                         <CardFooter className="p-4 pt-0">
-                            <Skeleton className="h-10 w-full" />
+                           <div className="w-full space-y-2">
+                                <Skeleton className="h-10 w-full" />
+                                <Skeleton className="h-10 w-full" />
+                            </div>
                         </CardFooter>
                     </Card>
                 ))}
@@ -96,11 +112,20 @@ export default function GalleryPage() {
                   <CardTitle as="h3">{portrait.petName}</CardTitle>
                   <CardDescription>Sporting a stylish {portrait.hatStyle}</CardDescription>
                   </CardHeader>
-                  <CardFooter className="p-4 pt-0">
-                  <Button onClick={() => handleVote(portrait.id)} variant={voted[portrait.id] ? "secondary" : "default"} className="w-full" disabled={voted[portrait.id]}>
-                      <Heart className={cn("mr-2 h-4 w-4", voted[portrait.id] ? "fill-red-500 text-red-500" : "")} />
-                      {voted[portrait.id] ? 'Voted!' : 'Vote'} ({votes[portrait.id] || 0})
-                  </Button>
+                  <CardFooter className="p-4 pt-0 flex-col gap-2">
+                    <Button onClick={() => handleVote(portrait.id)} variant={voted[portrait.id] ? "secondary" : "default"} className="w-full" disabled={voted[portrait.id]}>
+                        <Heart className={cn("mr-2 h-4 w-4", voted[portrait.id] ? "fill-red-500 text-red-500" : "")} />
+                        {voted[portrait.id] ? 'Voted!' : 'Vote'} ({votes[portrait.id] || 0})
+                    </Button>
+                    <Button asChild variant="outline" className="w-full">
+                        <a
+                         href={`https://www.amazon.com/s?k=${encodeURIComponent(portrait.hatStyle + ' for pet')}&tag=logonitro-20`}
+                         target="_blank"
+                         rel="noopener noreferrer"
+                        >
+                            <ShoppingCart /> Shop this look
+                        </a>
+                    </Button>
                   </CardFooter>
               </Card>
               ))}
@@ -110,3 +135,4 @@ export default function GalleryPage() {
     </>
   );
 }
+
