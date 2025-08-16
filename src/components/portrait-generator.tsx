@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
 import Image from 'next/image';
-import { Camera, Sparkles, Wand2, Share2 } from 'lucide-react';
+import { Camera, Sparkles, Wand2, Share2, CheckCircle2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { handleGeneratePortrait, handlePublishPortrait } from '@/app/actions';
 
@@ -11,15 +11,11 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { SessionGallery } from '@/components/session-gallery';
 import { Skeleton } from '@/components/ui/skeleton';
+import { cn } from '@/lib/utils';
+import { Textarea } from './ui/textarea';
+
 
 const initialGenerateState = {
   success: false,
@@ -35,15 +31,16 @@ const initialPublishState = {
 }
 
 const hatOptions = [
-  'Top Hat',
-  'Cowboy Hat',
-  'Beanie',
-  'Fez',
-  'Beret',
-  'Baseball Cap',
-  'Graduation Cap',
-  'Sombrero',
-  'Wizard Hat',
+  { name: 'Top Hat', image: 'https://placehold.co/100x100.png', hint: 'top hat' },
+  { name: 'Cowboy Hat', image: 'https://placehold.co/100x100.png', hint: 'cowboy hat' },
+  { name: 'Beanie', image: 'https://placehold.co/100x100.png', hint: 'beanie' },
+  { name: 'Fez', image: 'https://placehold.co/100x100.png', hint: 'fez' },
+  { name: 'Beret', image: 'https://placehold.co/100x100.png', hint: 'beret' },
+  { name: 'Baseball Cap', image: 'https://placehold.co/100x100.png', hint: 'baseball cap' },
+  { name: 'Graduation Cap', image: 'https://placehold.co/100x100.png', hint: 'graduation cap' },
+  { name: 'Sombrero', image: 'https://placehold.co/100x100.png', hint: 'sombrero' },
+  { name: 'Wizard Hat', image: 'https://placehold.co/100x100.png', hint: 'wizard hat' },
+  { name: 'None', image: 'https://placehold.co/100x100.png', hint: 'no hat' },
 ];
 
 function GenerateButton() {
@@ -140,7 +137,9 @@ export default function PortraitGenerator() {
   };
 
   const getHatStyle = () => {
-    return selectedHat === 'Custom' ? customHat : selectedHat;
+    if (selectedHat === 'Custom') return customHat;
+    if (selectedHat === 'None') return 'no hat';
+    return selectedHat;
   };
 
   const currentPortrait = generateState.success ? generateState.portraitDataUri : undefined;
@@ -200,27 +199,62 @@ export default function PortraitGenerator() {
                 />
               </div>
 
-              <div className="space-y-2">
+             <div className="space-y-4">
                 <Label>3. Choose a Hat Style</Label>
-                <Select value={selectedHat} onValueChange={setSelectedHat}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a hat" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {hatOptions.map((hat) => (
-                      <SelectItem key={hat} value={hat}>
-                        {hat}
-                      </SelectItem>
-                    ))}
-                    <SelectItem value="Custom">Custom...</SelectItem>
-                  </SelectContent>
-                </Select>
+                <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-4">
+                  {hatOptions.map((hat) => (
+                    <div
+                      key={hat.name}
+                      className={cn(
+                        "relative group cursor-pointer rounded-lg border-2 p-1 transition-all duration-200",
+                        selectedHat === hat.name
+                          ? 'border-primary ring-2 ring-primary shadow-lg'
+                          : 'border-muted hover:border-primary/50'
+                      )}
+                      onClick={() => setSelectedHat(hat.name)}
+                    >
+                      <div className="aspect-square w-full bg-muted rounded-md overflow-hidden">
+                         <Image
+                            src={hat.image}
+                            alt={hat.name}
+                            width={100}
+                            height={100}
+                            data-ai-hint={hat.hint}
+                            className="object-cover w-full h-full"
+                          />
+                      </div>
+                       <p className="text-center text-xs font-medium mt-2 truncate group-hover:text-primary">{hat.name}</p>
+                       {selectedHat === hat.name && (
+                         <div className="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2">
+                           <CheckCircle2 className="h-6 w-6 text-primary bg-white rounded-full" />
+                         </div>
+                       )}
+                    </div>
+                  ))}
+                   <div
+                      className={cn(
+                        "relative group cursor-pointer rounded-lg border-2 p-1 transition-all duration-200 flex flex-col justify-center items-center text-center",
+                        selectedHat === 'Custom'
+                          ? 'border-primary ring-2 ring-primary shadow-lg'
+                          : 'border-muted hover:border-primary/50'
+                      )}
+                      onClick={() => setSelectedHat('Custom')}
+                    >
+                      <p className="text-xs font-medium">Custom...</p>
+                       {selectedHat === 'Custom' && (
+                         <div className="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2">
+                           <CheckCircle2 className="h-6 w-6 text-primary bg-white rounded-full" />
+                         </div>
+                       )}
+                    </div>
+                </div>
                 {selectedHat === 'Custom' && (
-                  <Input
+                  <Textarea
                     name="customHatStyle"
-                    placeholder="Describe the hat (e.g., 'a funky rainbow propeller hat')"
+                    placeholder="Describe the hat in detail (e.g., 'a funky rainbow propeller hat with a blue brim')"
                     value={customHat}
                     onChange={(e) => setCustomHat(e.target.value)}
+                    className="mt-2"
                   />
                 )}
               </div>
