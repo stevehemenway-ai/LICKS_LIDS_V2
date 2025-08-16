@@ -126,12 +126,11 @@ export default function PortraitGenerator() {
   }, []);
 
   useEffect(() => {
-    // Only scroll if we are in the 'generating' state and there isn't a message.
-    // A message indicates a validation error, so we shouldn't scroll.
-    if (isGenerating && !generateState.message) {
+    // Scroll down to the portrait section only when generation starts and there are no validation errors.
+    if (isGenerating && !generateState.success && generateState.message === '') {
         portraitSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
-  }, [isGenerating, generateState.message]);
+  }, [isGenerating, generateState.success, generateState.message]);
 
   useEffect(() => {
     if (generateState.success && generateState.portraitDataUri) {
@@ -144,7 +143,8 @@ export default function PortraitGenerator() {
           setPetName(generateState.petName);
       }
     }
-    if (generateState.message && !isGenerating && !generateState.success) {
+    // Show toast for validation errors
+    if (generateState.message && !generateState.success && !isGenerating) {
        toast({
         title: 'Oops!',
         description: generateState.message,
