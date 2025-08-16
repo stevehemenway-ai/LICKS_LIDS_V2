@@ -152,8 +152,8 @@ export default function PortraitGenerator() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
         <Card>
           <CardHeader>
-            <CardTitle className="text-2xl font-headline">Create Your Masterpiece</CardTitle>
-            <CardDescription>Follow these simple steps to get a portrait of your furry friend.</CardDescription>
+            <CardTitle as="h2">Create Your Masterpiece</CardTitle>
+            <CardDescription as="p">Follow these simple steps to get a portrait of your furry friend.</CardDescription>
           </CardHeader>
           <CardContent>
             <form ref={generateFormRef} action={generateAction} className="space-y-6">
@@ -188,7 +188,6 @@ export default function PortraitGenerator() {
                   ref={fileInputRef}
                   className="hidden"
                   onChange={handleFileChange}
-                  required
                 />
               </div>
 
@@ -198,13 +197,12 @@ export default function PortraitGenerator() {
                   id="dogName"
                   name="dogName"
                   placeholder="e.g., Buddy"
-                  required
                 />
               </div>
 
               <div className="space-y-2">
                 <Label>3. Choose a Hat Style</Label>
-                <Select value={selectedHat} onValueChange={setSelectedHat} required>
+                <Select value={selectedHat} onValueChange={setSelectedHat}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select a hat" />
                   </SelectTrigger>
@@ -223,7 +221,6 @@ export default function PortraitGenerator() {
                     placeholder="Describe the hat (e.g., 'a funky rainbow propeller hat')"
                     value={customHat}
                     onChange={(e) => setCustomHat(e.target.value)}
-                    required
                   />
                 )}
               </div>
@@ -235,8 +232,8 @@ export default function PortraitGenerator() {
 
         <Card className="sticky top-20">
           <CardHeader>
-            <CardTitle className="text-2xl font-headline">Your Portrait</CardTitle>
-            <CardDescription>The generated portrait will appear here.</CardDescription>
+            <CardTitle as="h2">Your Portrait</CardTitle>
+            <CardDescription as="p">The generated portrait will appear here.</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="aspect-square w-full rounded-lg bg-muted flex items-center justify-center overflow-hidden">
