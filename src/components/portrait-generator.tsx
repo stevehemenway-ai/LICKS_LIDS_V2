@@ -98,6 +98,7 @@ export default function PortraitGenerator() {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const hatSelectionRef = useRef<HTMLDivElement>(null);
+  const portraitSectionRef = useRef<HTMLDivElement>(null);
   
   const resetPortrait = () => {
     // This function now only resets the visual state of the portrait,
@@ -122,6 +123,12 @@ export default function PortraitGenerator() {
   useEffect(() => {
     shuffleHats();
   }, []);
+
+  useEffect(() => {
+    if (isGenerating) {
+        portraitSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [isGenerating]);
 
   useEffect(() => {
     if (generateState.success && generateState.portraitDataUri) {
@@ -287,64 +294,66 @@ export default function PortraitGenerator() {
           </CardContent>
         </Card>
 
-        <Card className="sticky top-20">
-          <CardHeader>
-            <CardTitle as="h2">Your Portrait</CardTitle>
-            <CardDescription as="p">The generated portrait will appear here.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="aspect-square w-full rounded-lg bg-muted flex items-center justify-center overflow-hidden">
-              {isGenerating ? (
-                <div className="w-full h-full flex flex-col items-center justify-center space-y-4">
-                  <Skeleton className="h-full w-full" />
-                  <p className="text-muted-foreground animate-pulse">Dipping the brushes...</p>
+        <div ref={portraitSectionRef} className="lg:sticky top-20">
+            <Card>
+              <CardHeader>
+                <CardTitle as="h2">Your Portrait</CardTitle>
+                <CardDescription as="p">The generated portrait will appear here.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="aspect-square w-full rounded-lg bg-muted flex items-center justify-center overflow-hidden">
+                  {isGenerating ? (
+                    <div className="w-full h-full flex flex-col items-center justify-center space-y-4">
+                      <Skeleton className="h-full w-full" />
+                      <p className="text-muted-foreground animate-pulse">Dipping the brushes...</p>
+                    </div>
+                  ) : currentPortrait ? (
+                    <Image
+                      src={currentPortrait}
+                      alt="Generated pet portrait"
+                      width={512}
+                      height={512}
+                      className="object-cover w-full h-full transition-opacity duration-500 opacity-100"
+                      priority
+                    />
+                  ) : (
+                    <div className="text-center text-muted-foreground p-8">
+                      <Wand2 className="mx-auto h-16 w-16" />
+                      <p className="mt-4">Your pet's portrait awaits!</p>
+                    </div>
+                  )}
                 </div>
-              ) : currentPortrait ? (
-                <Image
-                  src={currentPortrait}
-                  alt="Generated pet portrait"
-                  width={512}
-                  height={512}
-                  className="object-cover w-full h-full transition-opacity duration-500 opacity-100"
-                  priority
-                />
-              ) : (
-                <div className="text-center text-muted-foreground p-8">
-                  <Wand2 className="mx-auto h-16 w-16" />
-                  <p className="mt-4">Your pet's portrait awaits!</p>
-                </div>
-              )}
-            </div>
-          </CardContent>
-           {currentPortrait && (
-            <CardFooter className="flex-col gap-4">
-                <form action={publishAction} className="w-full">
-                    <input type="hidden" name="petName" value={petName || ''} />
-                    <input type="hidden" name="hatStyle" value={getHatStyle() || ''} />
-                    <input type="hidden" name="portraitDataUri" value={currentPortrait || ''} />
-                    <PublishButton />
-                </form>
-                <div className="w-full grid grid-cols-3 gap-2">
-                    <Button asChild variant="outline" className="w-full">
-                        <a
-                         href={`https://www.amazon.com/s?k=${encodeURIComponent((getHatStyle() || '') + ' for pet')}&tag=logonitro-20`}
-                         target="_blank"
-                         rel="noopener noreferrer"
-                        >
-                            <ShoppingCart /> Shop this look
-                        </a>
-                    </Button>
-                    <Button variant="outline" className="w-full" onClick={resetPortrait}>
-                        <RefreshCcw /> Choose another hat
-                    </Button>
-                    <Button variant="outline" className="w-full" onClick={handleDownload}>
-                        <Download /> Download
-                    </Button>
-                </div>
+              </CardContent>
+               {currentPortrait && (
+                <CardFooter className="flex-col gap-4">
+                    <form action={publishAction} className="w-full">
+                        <input type="hidden" name="petName" value={petName || ''} />
+                        <input type="hidden" name="hatStyle" value={getHatStyle() || ''} />
+                        <input type="hidden" name="portraitDataUri" value={currentPortrait || ''} />
+                        <PublishButton />
+                    </form>
+                    <div className="w-full grid grid-cols-3 gap-2">
+                        <Button asChild variant="outline" className="w-full">
+                            <a
+                             href={`https://www.amazon.com/s?k=${encodeURIComponent((getHatStyle() || '') + ' for pet')}&tag=logonitro-20`}
+                             target="_blank"
+                             rel="noopener noreferrer"
+                            >
+                                <ShoppingCart /> Shop this look
+                            </a>
+                        </Button>
+                        <Button variant="outline" className="w-full" onClick={resetPortrait}>
+                            <RefreshCcw /> Choose another hat
+                        </Button>
+                        <Button variant="outline" className="w-full" onClick={handleDownload}>
+                            <Download /> Download
+                        </Button>
+                    </div>
 
-            </CardFooter>
-           )}
-        </Card>
+                </CardFooter>
+               )}
+            </Card>
+        </div>
       </div>
 
       <SessionGallery portraits={generatedPortraits} />
