@@ -1,9 +1,7 @@
 'use server';
 
-import { z } from 'zod';
 import { generatePetPortrait } from "@/ai/flows/generate-pet-portrait";
 import { addPortraitToGallery } from '@/services/gallery.service';
-import { generateFormSchema } from '@/ai/flows/types';
 
 // Define the shape of the data returned by the actions
 export interface GenerateActionResult {
@@ -19,27 +17,20 @@ export interface PublishActionResult {
     message: string;
 }
 
-const publishFormSchema = z.object({
-    petName: z.string(),
-    hatStyle: z.string(),
-    portraitDataUri: z.string(),
-});
-
 /**
  * A standard async function to handle portrait generation.
  * It's called from the client with a structured object.
  */
 export async function handleGeneratePortrait(
-  input: z.infer<typeof generateFormSchema>
+  input: { petName: string, photoDataUri: string, hatStyle: string }
 ): Promise<GenerateActionResult> {
   try {
-    const validatedFields = generateFormSchema.safeParse(input);
-
-    if (!validatedFields.success) {
-      return { success: false, message: 'Invalid form data.' };
+    // Basic validation
+    if (!input.petName || !input.photoDataUri || !input.hatStyle) {
+      return { success: false, message: 'Invalid form data. All fields are required.' };
     }
     
-    const result = await generatePetPortrait(validatedFields.data);
+    const result = await generatePetPortrait(input);
 
     if (!result.portraitDataUri) {
         throw new Error('AI generation failed to return a portrait.');
@@ -49,8 +40,8 @@ export async function handleGeneratePortrait(
       success: true,
       message: 'Your masterpiece is ready!',
       portraitDataUri: result.portraitDataUri,
-      petName: validatedFields.data.petName,
-      hatStyle: validatedFields.data.hatStyle,
+      petName: input.petName,
+      hatStyle: input.hatStyle,
     };
   } catch (error) {
     console.error('Error generating portrait:', error);
@@ -67,19 +58,17 @@ export async function handleGeneratePortrait(
  * It's called from the client with a structured object.
  */
 export async function handlePublishPortrait(
-    input: z.infer<typeof publishFormSchema>
+    input: { petName: string, hatStyle: string, portraitDataUri: string }
 ): Promise<PublishActionResult> {
     try {
-        const validatedFields = publishFormSchema.safeParse(input);
-
-        if (!validatedFields.success) {
+        if (!input.petName || !input.hatStyle || !input.portraitDataUri) {
             return {
                 success: false,
                 message: 'Invalid data for publishing.',
             };
         }
 
-        await addPortraitToGallery(validatedFields.data);
+        await addPortraitToGallery(input);
 
         return {
             success: true,
