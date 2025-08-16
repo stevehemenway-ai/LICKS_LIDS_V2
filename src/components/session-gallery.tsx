@@ -38,7 +38,7 @@ export function SessionGallery({ portraits }: SessionGalleryProps) {
                 <a
                   href={`https://www.amazon.com/s?k=${encodeURIComponent(
                     portrait.hatStyle
-                  )}`}
+                  )}&tag=logonitro-20`}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
