@@ -1,4 +1,3 @@
-
 'use server';
 
 import { z } from 'zod';
@@ -27,7 +26,7 @@ const publishFormSchema = z.object({
     portraitDataUri: z.string(),
 });
 
-// SERVER ACTION 1: Add async keyword
+// SERVER ACTION 1: Correctly defined as an async function
 async function handleGeneratePortrait(
   prevState: GenerateFormState,
   formData: FormData
@@ -86,7 +85,7 @@ async function handleGeneratePortrait(
 }
 
 
-// SERVER ACTION 2: Add async keyword
+// SERVER ACTION 2: Correctly defined as an async function
 async function handlePublishPortrait(
     prevState: PublishFormState,
     formData: FormData,
