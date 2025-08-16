@@ -126,6 +126,8 @@ export default function PortraitGenerator() {
   }, []);
 
   useEffect(() => {
+    // Only scroll if we are in the 'generating' state and there isn't a message.
+    // A message indicates a validation error, so we shouldn't scroll.
     if (isGenerating && !generateState.message) {
         portraitSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
