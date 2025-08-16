@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -9,7 +10,7 @@
  */
 
 import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
+import {z} from 'zod';
 
 const GeneratePetPortraitInputSchema = z.object({
   photoDataUri: z
@@ -31,11 +32,20 @@ const GeneratePetPortraitOutputSchema = z.object({
 });
 export type GeneratePetPortraitOutput = z.infer<typeof GeneratePetPortraitOutputSchema>;
 
-export async function generatePetPortrait(
-  input: GeneratePetPortraitInput
-): Promise<GeneratePetPortraitOutput> {
-  return generatePetPortraitFlow(input);
+
+export async function generatePetPortrait(input: GeneratePetPortraitInput): Promise<GeneratePetPortraitOutput> {
+    return generatePetPortraitFlow(input);
 }
+
+
+const prompt = ai.definePrompt(
+    {
+        name: 'petPortraitPrompt',
+        input: {schema: GeneratePetPortraitInputSchema},
+        output: {schema: GeneratePetPortraitOutputSchema},
+        prompt: `Create a photorealistic, high quality portrait of {{petName}} wearing a {{hatStyle}}.`,
+    },
+);
 
 const generatePetPortraitFlow = ai.defineFlow(
   {
@@ -43,22 +53,22 @@ const generatePetPortraitFlow = ai.defineFlow(
     inputSchema: GeneratePetPortraitInputSchema,
     outputSchema: GeneratePetPortraitOutputSchema,
   },
-  async input => {
-    const {media} = await ai.generate({
-      model: 'googleai/gemini-2.0-flash-preview-image-generation',
-      prompt: [
-        {media: {url: input.photoDataUri}},
-        {text: `Create a photorealistic, high quality portrait of ${input.petName} wearing a ${input.hatStyle}.`},
-      ],
-      config: {
-        responseModalities: ['TEXT', 'IMAGE'],
-      },
+  async (input) => {
+    const { media } = await ai.generate({
+        model: 'googleai/gemini-2.0-flash-preview-image-generation',
+        prompt: [
+            { text: `Create a photorealistic, high quality portrait of ${input.petName || 'a pet'} wearing a ${input.hatStyle}.` },
+            { media: { url: input.photoDataUri } }
+        ],
+        config: {
+            responseModalities: ['TEXT', 'IMAGE'],
+        },
     });
 
-    if (!media || !media.url) {
+    if (!media.url) {
       throw new Error('Failed to generate the pet portrait.');
     }
 
-    return {portraitDataUri: media.url};
+    return { portraitDataUri: media.url };
   }
 );

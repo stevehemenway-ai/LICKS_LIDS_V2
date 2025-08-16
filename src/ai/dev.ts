@@ -1,4 +1,6 @@
 import { config } from 'dotenv';
 config();
 
-import '@/ai/flows/generate-pet-portrait.ts';
+// This file is the entrypoint for the Genkit developer UI.
+// It is not used in production.
+import './route';
