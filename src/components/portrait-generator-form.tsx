@@ -8,6 +8,7 @@ import Image from 'next/image';
 import { Camera, Sparkles, Wand2, Share2, RefreshCw, ShoppingCart, RefreshCcw, Download } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { GenerateFormState, PublishFormState } from '@/app/actions';
+import { handleGeneratePortrait, handlePublishPortrait } from '@/app/actions';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
@@ -80,14 +81,9 @@ function PublishButton() {
   );
 }
 
-type PortraitGeneratorFormProps = {
-    generateAction: (prevState: GenerateFormState, formData: FormData) => Promise<GenerateFormState>;
-    publishAction: (prevState: PublishFormState, formData: FormData) => Promise<PublishFormState>;
-}
-
-export default function PortraitGeneratorForm({ generateAction, publishAction }: PortraitGeneratorFormProps) {
-  const [generateState, wrappedGenerateAction, isGenerating] = useActionState(generateAction, initialGenerateState);
-  const [publishState, wrappedPublishAction, isPublishing] = useActionState(publishAction, initialPublishState);
+export default function PortraitGeneratorForm() {
+  const [generateState, wrappedGenerateAction, isGenerating] = useActionState(handleGeneratePortrait, initialGenerateState);
+  const [publishState, wrappedPublishAction, isPublishing] = useActionState(handlePublishPortrait, initialPublishState);
 
   const { toast } = useToast();
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
