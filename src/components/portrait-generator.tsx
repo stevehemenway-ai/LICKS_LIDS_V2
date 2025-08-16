@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
 import Image from 'next/image';
-import { Camera, Sparkles, Wand2, Share2, RefreshCw } from 'lucide-react';
+import { Camera, Sparkles, Wand2, Share2, RefreshCw, ShoppingCart, RefreshCcw, Download } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { handleGeneratePortrait, handlePublishPortrait } from '@/app/actions';
 
@@ -81,7 +81,7 @@ function PublishButton({ petName, hatStyle, portraitDataUri }: { petName?: strin
 
 
 export default function PortraitGenerator() {
-  const [generateState, generateAction] = useActionState(handleGeneratePortrait, initialGenerateState);
+  const [generateState, generateAction, isGenerating] = useActionState(handleGeneratePortrait, initialGenerateState);
   const [publishState, publishAction] = useActionState(handlePublishPortrait, initialPublishState);
 
   const { toast } = useToast();
@@ -96,7 +96,16 @@ export default function PortraitGenerator() {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const generateFormRef = useRef<HTMLFormElement>(null);
-
+  
+  const resetPortrait = () => {
+    // This is a bit of a hack to reset the form action state
+    (generateFormRef.current as any)?.reset();
+    // We can't directly reset useActionState, so we trigger a state update
+    // that effectively archives the last run. A true reset isn't supported.
+    // For this UI, we just need to clear the image.
+    initialGenerateState.portraitDataUri = ''; 
+  };
+  
   const shuffleHats = () => {
     const shuffled = [...allHatOptions].sort(() => 0.5 - Math.random());
     setDisplayedHats(shuffled.slice(0, HATS_TO_SHOW));
@@ -121,7 +130,7 @@ export default function PortraitGenerator() {
       });
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [generateState, toast]);
+  }, [generateState]);
 
   useEffect(() => {
       if (publishState.message) {
@@ -159,9 +168,21 @@ export default function PortraitGenerator() {
       setSelectedHat('');
   }
 
-  const currentPortrait = generateState.success ? generateState.portraitDataUri : undefined;
+  const handleDownload = () => {
+    if (!currentPortrait) return;
+    const link = document.createElement('a');
+    link.href = currentPortrait;
+    // Append a timestamp to the filename for uniqueness
+    const timestamp = new Date().getTime();
+    const petName = generateState.petName || 'pet';
+    const hatStyle = (generateState.hatStyle || 'portrait').replace(/\s+/g, '_');
+    link.download = `${petName}_in_${hatStyle}_${timestamp}.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
-  const { pending: isGenerating } = useFormStatus();
+  const currentPortrait = generateState.success ? generateState.portraitDataUri : undefined;
 
   return (
     <>
@@ -282,8 +303,8 @@ export default function PortraitGenerator() {
             </div>
           </CardContent>
            {currentPortrait && (
-            <CardFooter>
-                 <form action={publishAction} className="w-full">
+            <CardFooter className="flex-col gap-4">
+                <form action={publishAction} className="w-full">
                     <input type="hidden" name="petName" value={generateState.petName || ''} />
                     <input type="hidden" name="hatStyle" value={generateState.hatStyle || ''} />
                     <input type="hidden" name="portraitDataUri" value={generateState.portraitDataUri || ''} />
@@ -293,6 +314,24 @@ export default function PortraitGenerator() {
                         portraitDataUri={generateState.portraitDataUri}
                     />
                 </form>
+                <div className="w-full grid grid-cols-3 gap-2">
+                    <Button asChild variant="outline" className="w-full">
+                        <a
+                         href={`https://www.amazon.com/s?k=${encodeURIComponent(generateState.hatStyle || '')}&tag=logonitro-20`}
+                         target="_blank"
+                         rel="noopener noreferrer"
+                        >
+                            <ShoppingCart /> Shop this look
+                        </a>
+                    </Button>
+                    <Button variant="outline" className="w-full" onClick={resetPortrait}>
+                        <RefreshCcw /> Choose another hat
+                    </Button>
+                    <Button variant="outline" className="w-full" onClick={handleDownload}>
+                        <Download /> Download
+                    </Button>
+                </div>
+
             </CardFooter>
            )}
         </Card>
