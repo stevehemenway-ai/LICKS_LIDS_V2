@@ -177,184 +177,184 @@ export default function PortraitGeneratorForm() {
 
   return (
     <>
-        <Card>
-          <CardHeader>
-            <CardTitle as="h2">Create Your Masterpiece</CardTitle>
-            <CardDescription as="p">Follow these simple steps to get a portrait of your furry friend.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleGenerationSubmit} className="space-y-6">
-              <div className="space-y-2">
-                <Label htmlFor="pet-photo" className="text-base">1. Upload a Photo</Label>
-                <div
-                  className="relative flex justify-center items-center w-full h-48 md:h-64 border-2 border-dashed rounded-lg cursor-pointer hover:border-primary transition-colors"
-                  onClick={() => fileInputRef.current?.click()}
-                >
-                  {photoPreview ? (
-                    <Image
-                      src={photoPreview}
-                      alt="Pet preview"
-                      fill
-                      className="object-contain rounded-lg p-1"
-                    />
-                  ) : (
-                    <div className="text-center text-muted-foreground">
-                      <Camera className="mx-auto h-12 w-12" />
-                      <p>Click to upload a photo</p>
-                    </div>
-                  )}
-                </div>
-                <Input
-                  id="pet-photo"
-                  name="pet-photo-file"
-                  type="file"
-                  accept="image/*"
-                  ref={fileInputRef}
-                  className="hidden"
-                  onChange={handleFileChange}
-                />
+      <Card>
+        <CardHeader>
+          <CardTitle as="h2">Create Your Masterpiece</CardTitle>
+          <CardDescription as="p">Follow these simple steps to get a portrait of your furry friend.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleGenerationSubmit} className="space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="pet-photo" className="text-base">1. Upload a Photo</Label>
+              <div
+                className="relative flex justify-center items-center w-full h-48 md:h-64 border-2 border-dashed rounded-lg cursor-pointer hover:border-primary transition-colors"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                {photoPreview ? (
+                  <Image
+                    src={photoPreview}
+                    alt="Pet preview"
+                    fill
+                    className="object-contain rounded-lg p-1"
+                  />
+                ) : (
+                  <div className="text-center text-muted-foreground">
+                    <Camera className="mx-auto h-12 w-12" />
+                    <p>Click to upload a photo</p>
+                  </div>
+                )}
               </div>
+              <Input
+                id="pet-photo"
+                name="pet-photo-file"
+                type="file"
+                accept="image/*"
+                ref={fileInputRef}
+                className="hidden"
+                onChange={handleFileChange}
+              />
+            </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="petName" className="text-base">2. Name Your Pet</Label>
-                <Input
-                  id="petName"
-                  name="petName"
-                  placeholder="e.g., Buddy"
-                  value={petName}
-                  onChange={(e) => setPetName(e.target.value)}
-                  disabled={isGenerating}
-                />
-              </div>
+            <div className="space-y-2">
+              <Label htmlFor="petName" className="text-base">2. Name Your Pet</Label>
+              <Input
+                id="petName"
+                name="petName"
+                placeholder="e.g., Buddy"
+                value={petName}
+                onChange={(e) => setPetName(e.target.value)}
+                disabled={isGenerating}
+              />
+            </div>
 
-             <div className="space-y-4" ref={hatSelectionRef}>
-                <Label className="text-base">3. Choose a Hat Style</Label>
-                <div className="flex flex-wrap gap-2">
-                  {displayedHats.map((hat) => (
-                    <Button
-                      key={hat}
-                      type="button"
-                      variant={selectedHat === hat ? 'default' : 'outline'}
-                      onClick={() => handleHatSelect(hat)}
-                      disabled={isGenerating}
-                    >
-                      {hat}
-                    </Button>
-                  ))}
+           <div className="space-y-4" ref={hatSelectionRef}>
+              <Label className="text-base">3. Choose a Hat Style</Label>
+              <div className="flex flex-wrap gap-2">
+                {displayedHats.map((hat) => (
                   <Button
+                    key={hat}
                     type="button"
-                    variant="secondary"
-                    onClick={shuffleHats}
+                    variant={selectedHat === hat ? 'default' : 'outline'}
+                    onClick={() => handleHatSelect(hat)}
                     disabled={isGenerating}
                   >
-                    <RefreshCw className="mr-2 h-4 w-4" />
-                    More Choices
+                    {hat}
                   </Button>
-                </div>
-                 <Textarea
-                    name="customHatStyle"
-                    placeholder="...or describe a custom hat in detail (e.g., 'a funky rainbow propeller hat')"
-                    value={customHat}
-                    onChange={handleCustomHatChange}
-                    className="mt-2"
-                    disabled={isGenerating}
-                  />
+                ))}
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={shuffleHats}
+                  disabled={isGenerating}
+                >
+                  <RefreshCw className="mr-2 h-4 w-4" />
+                  More Choices
+                </Button>
               </div>
+               <Textarea
+                  name="customHatStyle"
+                  placeholder="...or describe a custom hat in detail (e.g., 'a funky rainbow propeller hat')"
+                  value={customHat}
+                  onChange={handleCustomHatChange}
+                  className="mt-2"
+                  disabled={isGenerating}
+                />
+            </div>
 
-              <Button type="submit" variant="accent" size="lg" className="w-full" disabled={isGenerating}>
+            <Button type="submit" variant="accent" size="lg" className="w-full" disabled={isGenerating}>
+              {isGenerating ? (
+                <>
+                  <Sparkles className="mr-2 h-4 w-4 animate-spin" />
+                  Creating Magic...
+                </>
+              ) : (
+                <>
+                  <Wand2 className="mr-2 h-4 w-4" />
+                  Generate Portrait
+                </>
+              )}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+
+      <div ref={portraitSectionRef} className="sticky top-20">
+          <Card>
+            <CardHeader>
+              <CardTitle as="h2">Your Portrait</CardTitle>
+              <CardDescription as="p">The generated portrait will appear here.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="aspect-square w-full rounded-lg bg-muted flex items-center justify-center overflow-hidden">
                 {isGenerating ? (
-                  <>
-                    <Sparkles className="mr-2 h-4 w-4 animate-spin" />
-                    Creating Magic...
-                  </>
+                  <div className="w-full h-full flex flex-col items-center justify-center space-y-4">
+                    <Skeleton className="h-full w-full" />
+                    <p className="text-muted-foreground animate-pulse">Dipping the brushes...</p>
+                  </div>
+                ) : localPortraitUri ? (
+                  <Image
+                    src={localPortraitUri}
+                    alt="Generated pet portrait"
+                    width={512}
+                    height={512}
+                    className="object-cover w-full h-full transition-opacity duration-500 opacity-100"
+                    priority
+                  />
                 ) : (
-                  <>
-                    <Wand2 className="mr-2 h-4 w-4" />
-                    Generate Portrait
-                  </>
+                  <div className="text-center text-muted-foreground p-8">
+                    <Wand2 className="mx-auto h-16 w-16" />
+                    <p className="mt-4">Your pet's portrait awaits!</p>
+                  </div>
                 )}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
-
-        <div ref={portraitSectionRef} className="lg:sticky top-20">
-            <Card>
-              <CardHeader>
-                <CardTitle as="h2">Your Portrait</CardTitle>
-                <CardDescription as="p">The generated portrait will appear here.</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="aspect-square w-full rounded-lg bg-muted flex items-center justify-center overflow-hidden">
-                  {isGenerating ? (
-                    <div className="w-full h-full flex flex-col items-center justify-center space-y-4">
-                      <Skeleton className="h-full w-full" />
-                      <p className="text-muted-foreground animate-pulse">Dipping the brushes...</p>
-                    </div>
-                  ) : localPortraitUri ? (
-                    <Image
-                      src={localPortraitUri}
-                      alt="Generated pet portrait"
-                      width={512}
-                      height={512}
-                      className="object-cover w-full h-full transition-opacity duration-500 opacity-100"
-                      priority
-                    />
-                  ) : (
-                    <div className="text-center text-muted-foreground p-8">
-                      <Wand2 className="mx-auto h-16 w-16" />
-                      <p className="mt-4">Your pet's portrait awaits!</p>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-               {localPortraitUri && (
-                <CardFooter className="flex-col gap-4">
-                    <form onSubmit={handlePublishSubmit} className="w-full">
-                        <Button type="submit" variant="secondary" className="w-full" disabled={isPublishing}>
-                          {isPublishing ? (
-                              <>
-                                <Sparkles className="mr-2 h-4 w-4 animate-spin" />
-                                Publishing...
-                              </>
-                          ) : (
-                              <>
-                                <Share2 className="mr-2 h-4 w-4" />
-                                Publish to Gallery
-                              </>
-                          )}
-                        </Button>
-                    </form>
-                    <div className="w-full grid grid-cols-1 sm:grid-cols-3 gap-2">
-                        <Button asChild variant="outline" className="w-full">
-                            <a
-                             href={`https://www.amazon.com/s?k=${encodeURIComponent((currentHatStyle || '') + ' for pet')}&tag=logonitro-20`}
-                             target="_blank"
-                             rel="noopener noreferrer"
-                            >
-                                <ShoppingCart /> 
-                                <span className="sm:hidden">Shop</span>
-                                <span className="hidden sm:inline">Shop this look</span>
-                            </a>
-                        </Button>
-                        <Button variant="outline" className="w-full" onClick={resetPortrait}>
-                            <RefreshCcw /> 
-                            <span className="sm:hidden">Remix</span>
-                             <span className="hidden sm:inline">Choose another hat</span>
-                        </Button>
-                        <Button variant="outline" className="w-full" onClick={handleDownload}>
-                            <Download /> 
-                             <span className="sm:hidden">Save</span>
-                             <span className="hidden sm:inline">Download</span>
-                        </Button>
-                    </div>
-                    <p className="text-xs text-muted-foreground text-center w-full pt-2">
-                        As an Amazon Associate, we earn from qualifying purchases.
-                    </p>
-                </CardFooter>
-               )}
-            </Card>
-        </div>
+              </div>
+            </CardContent>
+             {localPortraitUri && (
+              <CardFooter className="flex-col gap-4">
+                  <form onSubmit={handlePublishSubmit} className="w-full">
+                      <Button type="submit" variant="secondary" className="w-full" disabled={isPublishing}>
+                        {isPublishing ? (
+                            <>
+                              <Sparkles className="mr-2 h-4 w-4 animate-spin" />
+                              Publishing...
+                            </>
+                        ) : (
+                            <>
+                              <Share2 className="mr-2 h-4 w-4" />
+                              Publish to Gallery
+                            </>
+                        )}
+                      </Button>
+                  </form>
+                  <div className="w-full grid grid-cols-1 sm:grid-cols-3 gap-2">
+                      <Button asChild variant="outline" className="w-full">
+                          <a
+                           href={`https://www.amazon.com/s?k=${encodeURIComponent((currentHatStyle || '') + ' for pet')}&tag=logonitro-20`}
+                           target="_blank"
+                           rel="noopener noreferrer"
+                          >
+                              <ShoppingCart /> 
+                              <span className="sm:hidden">Shop</span>
+                              <span className="hidden sm:inline">Shop this look</span>
+                          </a>
+                      </Button>
+                      <Button variant="outline" className="w-full" onClick={resetPortrait}>
+                          <RefreshCcw /> 
+                          <span className="sm:hidden">Remix</span>
+                           <span className="hidden sm:inline">Choose another hat</span>
+                      </Button>
+                      <Button variant="outline" className="w-full" onClick={handleDownload}>
+                          <Download /> 
+                           <span className="sm:hidden">Save</span>
+                           <span className="hidden sm:inline">Download</span>
+                      </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground text-center w-full pt-2">
+                      As an Amazon Associate, we earn from qualifying purchases.
+                  </p>
+              </CardFooter>
+             )}
+          </Card>
+      </div>
     </>
   );
 }
