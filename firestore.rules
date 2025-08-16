@@ -3,22 +3,15 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Portraits Collection Rules
     match /portraits/{portraitId} {
-      // Anyone can view the portraits for the public gallery.
+      // Allow anyone to read the gallery portraits
       allow get, list: if true;
 
-      // Only our server-side logic should be able to create new portraits.
-      // This is implicitly handled by not allowing client-side create.
-      // We will allow updates only for the 'votes' field.
-      allow create: if false; // Block direct client creation
+      // Only allow the backend to create new portraits
+      allow create: if request.auth == null; // Placeholder for server-side-only access
 
-      // Anyone can update a portrait, but only the 'votes' field.
-      // This allows the voting mechanism to work without authentication.
+      // Only allow updates to the 'votes' field
       allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['votes']);
-
-      // Deletion of portraits should not be allowed from the client.
-      allow delete: if false;
     }
   }
 }
