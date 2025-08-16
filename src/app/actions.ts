@@ -1,10 +1,9 @@
 
+
 'use server';
 
 import { generatePetPortrait } from "@/ai/flows/generate-pet-portrait";
 import { addPortraitToGallery, deletePortraitFromGallery } from '@/services/gallery.service';
-import { getAuth } from "firebase-admin/auth";
-import { app } from '@/lib/firebase-admin'; // Server-side Firebase App
 import { revalidatePath } from "next/cache";
 
 // Define the shape of the data returned by the actions

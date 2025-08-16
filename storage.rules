@@ -3,19 +3,22 @@ rules_version = '2';
 
 service firebase.storage {
   match /b/{bucket}/o {
-    // Match any file in the 'portraits' directory
+    // Helper function to check for admin role from Firestore
+    function isAdmin() {
+      return firestore.exists(/databases/(default)/documents/users/$(request.auth.uid)) &&
+             firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // Match files in the 'portraits' folder
     match /portraits/{imageId} {
-    
-      // Anyone can read images for the public gallery.
+      // Anyone can read images, required for public gallery
       allow read: if true;
-      
-      // Only authenticated users can create/upload new images.
+
+      // Only authenticated users can create (upload) new images
       allow create: if request.auth != null;
 
-      // Only admins can delete images.
-      // This requires a custom claim or checking Firestore for the role.
-      // We will check Firestore for the admin role.
-      allow delete: if get(/databases/(default)/documents/users/$(request.auth.uid)).data.role == 'admin';
+      // Only admins can delete images
+      allow delete: if isAdmin();
     }
   }
 }

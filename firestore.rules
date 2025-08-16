@@ -4,27 +4,35 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
   
-    // Users collection stores roles
-    match /users/{userId} {
-      // Only admins can read user roles
-      allow read: if get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
-      // Only admins can write user roles
-      allow write: if get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    // Helper function to check for admin role
+    function isAdmin(userId) {
+      return exists(/databases/$(database)/documents/users/$(userId)) &&
+             get(/databases/$(database)/documents/users/$(userId)).data.role == 'admin';
     }
 
-    // Portraits collection
+    // Rules for the 'portraits' collection
     match /portraits/{portraitId} {
-      // Anyone can read portraits for the public gallery
+      // Anyone can read (get, list) portraits for the public gallery
       allow read: if true;
+
+      // Only authenticated users can create portraits
+      allow create: if request.auth != null;
       
-      // Anyone can vote (update the votes field)
+      // Allow anyone to update the 'votes' field
       allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['votes']);
 
-      // Any authenticated user can create a portrait
-      allow create: if request.auth != null;
-
       // Only admins can delete portraits
-      allow delete: if get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+      allow delete: if isAdmin(request.auth.uid);
+    }
+
+    // Rules for the 'users' collection
+    match /users/{userId} {
+      // Users can only read their own document
+      // Admins can read any user document
+      allow read: if request.auth.uid == userId || isAdmin(request.auth.uid);
+
+      // Only admins can create, update, or delete user roles
+      allow write: if isAdmin(request.auth.uid);
     }
   }
 }

@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -11,6 +12,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription }
 import { cn } from '@/lib/utils';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
+import Link from 'next/link';
 
 export default function GalleryPage() {
     const [portraits, setPortraits] = useState<Portrait[]>([]);
@@ -109,7 +111,7 @@ export default function GalleryPage() {
                     <h2 className="text-2xl font-semibold">The Gallery is Empty</h2>
                     <p className="mt-2 text-muted-foreground">Be the first to create and publish a portrait!</p>
                     <Button asChild className="mt-4">
-                        <a href="/create">Create a Portrait</a>
+                        <Link href="/create">Create a Portrait</Link>
                     </Button>
                 </div>
             ) : (

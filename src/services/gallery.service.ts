@@ -1,4 +1,5 @@
 
+
 /**
  * @fileoverview A service for managing the public gallery of portraits using Firebase.
  */
@@ -108,6 +109,15 @@ export async function deletePortraitFromGallery(portraitId: string, imageUrl: st
     await deleteDoc(portraitRef);
 
     // 2. Delete the image from Firebase Storage
-    const storageRef = ref(storage, imageUrl);
-    await deleteObject(storageRef);
+    try {
+        const storageRef = ref(storage, imageUrl);
+        await deleteObject(storageRef);
+    } catch (error: any) {
+        // It's possible the image doesn't exist, so we log the error but don't rethrow it.
+        if (error.code === 'storage/object-not-found') {
+            console.warn(`Image not found in Storage, but continuing with Firestore deletion: ${imageUrl}`);
+        } else {
+            throw error;
+        }
+    }
 }
