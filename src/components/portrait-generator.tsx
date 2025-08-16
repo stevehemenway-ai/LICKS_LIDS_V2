@@ -1,6 +1,4 @@
 
-'use client';
-
 import type { GenerateFormState, PublishFormState } from "@/app/actions";
 import PortraitGeneratorForm from "./portrait-generator-form";
 
