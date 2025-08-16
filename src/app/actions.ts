@@ -4,12 +4,7 @@
 import { z } from 'zod';
 import { generatePetPortrait } from '@/ai/flows/generate-pet-portrait';
 import { addPortraitToGallery } from '@/services/gallery.service';
-
-const generateFormSchema = z.object({
-  petName: z.string().min(1, "Please enter your pet's name."),
-  photoDataUri: z.string().min(1, 'Please upload a photo of your pet.'),
-  hatStyle: z.string().min(1, 'Please select or describe a hat style.'),
-});
+import { generateFormSchema } from '@/ai/flows/types';
 
 type GenerateFormState = {
   success: boolean;
@@ -52,22 +47,7 @@ export async function handleGeneratePortrait(
     
     const generationInput = validatedFields.data;
     
-    // Instead of calling the flow directly, we fetch from the API endpoint.
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/genkit/generatePetPortraitFlow`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ data: generationInput }),
-    });
-
-    if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || `Request failed with status ${response.status}`);
-    }
-
-    const result = await response.json();
-
+    const result = await generatePetPortrait(generationInput);
 
     if (!result.portraitDataUri) {
         throw new Error('AI generation failed to return a portrait.');
