@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
-import { useFormState, useFormStatus } from 'react-dom';
+import { useState, useRef, useEffect, useActionState } from 'react';
+import { useFormStatus } from 'react-dom';
 import Image from 'next/image';
 import { Camera, Sparkles, Wand2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -59,7 +59,7 @@ function SubmitButton() {
 }
 
 export default function PortraitGenerator() {
-  const [state, formAction] = useFormState(handleGeneratePortrait, initialState);
+  const [state, formAction] = useActionState(handleGeneratePortrait, initialState);
   const { toast } = useToast();
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [photoDataUri, setPhotoDataUri] = useState<string>('');
