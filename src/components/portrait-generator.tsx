@@ -88,6 +88,7 @@ export default function PortraitGenerator() {
   const { toast } = useToast();
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [photoDataUri, setPhotoDataUri] = useState<string>('');
+  const [petName, setPetName] = useState('');
   const [selectedHat, setSelectedHat] = useState('');
   const [customHat, setCustomHat] = useState('');
   const [displayedHats, setDisplayedHats] = useState<string[]>([]);
@@ -96,20 +97,18 @@ export default function PortraitGenerator() {
   >([]);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const generateFormRef = useRef<HTMLFormElement>(null);
+  const hatSelectionRef = useRef<HTMLDivElement>(null);
   
   const resetPortrait = () => {
-    // We can't directly set the state returned by `useActionState` outside of a form action.
-    // Instead, we can effectively reset the view by clearing the portrait URI 
-    // from our local copy of the state, which will hide the generated image and its controls.
     if (generateState.success) {
       generateState.portraitDataUri = undefined;
       generateState.success = false;
     }
     
-    // Clear selections to allow for a new choice
     setSelectedHat('');
     setCustomHat('');
+
+    hatSelectionRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
   
   const shuffleHats = () => {
@@ -127,6 +126,9 @@ export default function PortraitGenerator() {
         ...prev,
         { portraitDataUri: generateState.portraitDataUri!, hatStyle: getHatStyle() },
       ]);
+      if (generateState.petName) {
+          setPetName(generateState.petName);
+      }
     }
     if (generateState.message && !isGenerating && !generateState.success) {
        toast({
@@ -179,11 +181,10 @@ export default function PortraitGenerator() {
     if (!currentPortrait) return;
     const link = document.createElement('a');
     link.href = currentPortrait;
-    // Append a timestamp to the filename for uniqueness
     const timestamp = new Date().getTime();
-    const petName = generateState.petName || 'pet';
-    const hatStyle = (generateState.hatStyle || 'portrait').replace(/\s+/g, '_');
-    link.download = `${petName}_in_${hatStyle}_${timestamp}.png`;
+    const petNameForFile = petName || 'pet';
+    const hatStyleForFile = (getHatStyle() || 'portrait').replace(/\s+/g, '_');
+    link.download = `${petNameForFile}_in_${hatStyleForFile}_${timestamp}.png`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -200,7 +201,7 @@ export default function PortraitGenerator() {
             <CardDescription as="p">Follow these simple steps to get a portrait of your furry friend.</CardDescription>
           </CardHeader>
           <CardContent>
-            <form ref={generateFormRef} action={generateAction} className="space-y-6">
+            <form action={generateAction} className="space-y-6">
               <input type="hidden" name="photoDataUri" value={photoDataUri} />
               <input type="hidden" name="hatStyle" value={getHatStyle()} />
 
@@ -241,10 +242,12 @@ export default function PortraitGenerator() {
                   id="petName"
                   name="petName"
                   placeholder="e.g., Buddy"
+                  value={petName}
+                  onChange={(e) => setPetName(e.target.value)}
                 />
               </div>
 
-             <div className="space-y-4">
+             <div className="space-y-4" ref={hatSelectionRef}>
                 <Label>3. Choose a Hat Style</Label>
                 <div className="flex flex-wrap gap-2">
                   {displayedHats.map((hat) => (
@@ -312,19 +315,19 @@ export default function PortraitGenerator() {
            {currentPortrait && (
             <CardFooter className="flex-col gap-4">
                 <form action={publishAction} className="w-full">
-                    <input type="hidden" name="petName" value={generateState.petName || ''} />
-                    <input type="hidden" name="hatStyle" value={generateState.hatStyle || ''} />
-                    <input type="hidden" name="portraitDataUri" value={generateState.portraitDataUri || ''} />
+                    <input type="hidden" name="petName" value={petName || ''} />
+                    <input type="hidden" name="hatStyle" value={getHatStyle() || ''} />
+                    <input type="hidden" name="portraitDataUri" value={currentPortrait || ''} />
                     <PublishButton 
-                        petName={generateState.petName}
-                        hatStyle={generateState.hatStyle}
-                        portraitDataUri={generateState.portraitDataUri}
+                        petName={petName}
+                        hatStyle={getHatStyle()}
+                        portraitDataUri={currentPortrait}
                     />
                 </form>
                 <div className="w-full grid grid-cols-3 gap-2">
                     <Button asChild variant="outline" className="w-full">
                         <a
-                         href={`https://www.amazon.com/s?k=${encodeURIComponent((generateState.hatStyle || '') + ' for pet')}&tag=logonitro-20`}
+                         href={`https://www.amazon.com/s?k=${encodeURIComponent((getHatStyle() || '') + ' for pet')}&tag=logonitro-20`}
                          target="_blank"
                          rel="noopener noreferrer"
                         >
