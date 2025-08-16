@@ -32,7 +32,6 @@ export async function handleGeneratePortrait(
 
     if (!validatedFields.success) {
         const issues = validatedFields.error.issues;
-        // Check for specific errors and return tailored messages
         const petNameIssue = issues.find(i => i.path.includes('petName'));
         if (petNameIssue) {
             return { success: false, message: petNameIssue.message };
@@ -121,3 +120,5 @@ export async function handlePublishPortrait(
         };
     }
 }
+
+    
