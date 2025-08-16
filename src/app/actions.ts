@@ -5,8 +5,8 @@ import { generatePetPortrait } from "@/ai/flows/generate-pet-portrait";
 import { addPortraitToGallery } from '@/services/gallery.service';
 import { generateFormSchema } from '@/ai/flows/types';
 
-// Define the state types directly in this file
-export type GenerateFormState = {
+// Define the shape of the data returned by the actions
+export interface GenerateActionResult {
   success: boolean;
   message: string;
   portraitDataUri?: string;
@@ -14,7 +14,7 @@ export type GenerateFormState = {
   hatStyle?: string;
 };
 
-export type PublishFormState = {
+export interface PublishActionResult {
     success: boolean;
     message: string;
 }
@@ -25,41 +25,21 @@ const publishFormSchema = z.object({
     portraitDataUri: z.string(),
 });
 
-// SERVER ACTION 1: Correctly defined as an async function
+/**
+ * A standard async function to handle portrait generation.
+ * It's called from the client with a structured object.
+ */
 export async function handleGeneratePortrait(
-  prevState: GenerateFormState,
-  formData: FormData
-): Promise<GenerateFormState> {
+  input: z.infer<typeof generateFormSchema>
+): Promise<GenerateActionResult> {
   try {
-    const validatedFields = generateFormSchema.safeParse({
-      petName: formData.get('petName'),
-      photoDataUri: formData.get('photoDataUri'),
-      hatStyle: formData.get('hatStyle'),
-    });
+    const validatedFields = generateFormSchema.safeParse(input);
 
     if (!validatedFields.success) {
-        const issues = validatedFields.error.issues;
-        const petNameIssue = issues.find(i => i.path.includes('petName'));
-        if (petNameIssue) {
-            return { success: false, message: petNameIssue.message };
-        }
-        const photoIssue = issues.find(i => i.path.includes('photoDataUri'));
-        if (photoIssue) {
-            return { success: false, message: photoIssue.message };
-        }
-        const hatIssue = issues.find(i => i.path.includes('hatStyle'));
-        if (hatIssue) {
-            return { success: false, message: hatIssue.message };
-        }
-        return {
-            success: false,
-            message: 'Invalid form data. Please check your inputs.',
-        };
+      return { success: false, message: 'Invalid form data.' };
     }
     
-    const generationInput = validatedFields.data;
-    
-    const result = await generatePetPortrait(generationInput);
+    const result = await generatePetPortrait(validatedFields.data);
 
     if (!result.portraitDataUri) {
         throw new Error('AI generation failed to return a portrait.');
@@ -75,7 +55,6 @@ export async function handleGeneratePortrait(
   } catch (error) {
     console.error('Error generating portrait:', error);
     const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
-    
     return {
       success: false,
       message: `Generation failed: ${errorMessage}`,
@@ -83,18 +62,15 @@ export async function handleGeneratePortrait(
   }
 }
 
-
-// SERVER ACTION 2: Correctly defined as an async function
+/**
+ * A standard async function to handle publishing.
+ * It's called from the client with a structured object.
+ */
 export async function handlePublishPortrait(
-    prevState: PublishFormState,
-    formData: FormData,
-): Promise<PublishFormState> {
+    input: z.infer<typeof publishFormSchema>
+): Promise<PublishActionResult> {
     try {
-        const validatedFields = publishFormSchema.safeParse({
-            petName: formData.get('petName'),
-            hatStyle: formData.get('hatStyle'),
-            portraitDataUri: formData.get('portraitDataUri'),
-        });
+        const validatedFields = publishFormSchema.safeParse(input);
 
         if (!validatedFields.success) {
             return {

@@ -2,13 +2,12 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { useActionState } from 'react';
-import { useFormStatus } from 'react-dom';
 import Image from 'next/image';
 import { Camera, Sparkles, Wand2, Share2, RefreshCw, ShoppingCart, RefreshCcw, Download } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import type { GenerateFormState, PublishFormState } from '@/app/actions';
 import { handleGeneratePortrait, handlePublishPortrait } from '@/app/actions';
+import type { GenerateActionResult, PublishActionResult } from '@/app/actions';
+
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
@@ -17,20 +16,6 @@ import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 import { Textarea } from './ui/textarea';
-
-
-const initialGenerateState: GenerateFormState = {
-  success: false,
-  message: '',
-  portraitDataUri: '',
-  petName: '',
-  hatStyle: '',
-};
-
-const initialPublishState: PublishFormState = {
-    success: false,
-    message: '',
-}
 
 const allHatOptions = [
   'Top Hat', 'Cowboy Hat', 'Beanie', 'Fez', 'Beret', 'Baseball Cap', 
@@ -43,72 +28,35 @@ const allHatOptions = [
 
 const HATS_TO_SHOW = 15;
 
-function GenerateButton() {
-  const { pending } = useFormStatus();
-  return (
-    <Button type="submit" variant="accent" size="lg" className="w-full" disabled={pending}>
-      {pending ? (
-        <>
-          <Sparkles className="mr-2 h-4 w-4 animate-spin" />
-          Creating Magic...
-        </>
-      ) : (
-        <>
-          <Wand2 className="mr-2 h-4 w-4" />
-          Generate Portrait
-        </>
-      )}
-    </Button>
-  );
-}
-
-function PublishButton() {
-  const { pending } = useFormStatus();
-  return (
-    <Button type="submit" variant="secondary" className="w-full" disabled={pending}>
-      {pending ? (
-          <>
-            <Sparkles className="mr-2 h-4 w-4 animate-spin" />
-            Publishing...
-          </>
-      ) : (
-          <>
-            <Share2 className="mr-2 h-4 w-4" />
-            Publish to Gallery
-          </>
-      )}
-    </Button>
-  );
-}
 
 export default function PortraitGeneratorForm() {
-  const [generateState, wrappedGenerateAction, isGenerating] = useActionState(handleGeneratePortrait, initialGenerateState);
-  const [publishState, wrappedPublishAction, isPublishing] = useActionState(handlePublishPortrait, initialPublishState);
-
   const { toast } = useToast();
+  
+  // State for form inputs
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [photoDataUri, setPhotoDataUri] = useState<string>('');
   const [petName, setPetName] = useState('');
   const [selectedHat, setSelectedHat] = useState('');
   const [customHat, setCustomHat] = useState('');
   const [displayedHats, setDisplayedHats] = useState<string[]>([]);
+  
+  // State for generation results
+  const [generatedPortrait, setGeneratedPortrait] = useState<GenerateActionResult | null>(null);
+  
+  // State for loading and submission status
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [isPublishing, setIsPublishing] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const hatSelectionRef = useRef<HTMLDivElement>(null);
   const portraitSectionRef = useRef<HTMLDivElement>(null);
   
-  // This state is needed to manually reset the portrait view
-  // because useActionState doesn't provide a way to reset its state.
-  const [localPortraitUri, setLocalPortraitUri] = useState<string | undefined>();
-  
   const getHatStyle = () => customHat.trim() || selectedHat;
   
   const resetPortrait = () => {
-    setLocalPortraitUri(undefined);
+    setGeneratedPortrait(null);
     setSelectedHat('');
     setCustomHat('');
-
-    // Scroll the user back to the hat selection area.
     hatSelectionRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
   
@@ -122,43 +70,11 @@ export default function PortraitGeneratorForm() {
   }, []);
 
   useEffect(() => {
-    if (isGenerating || isPublishing) return;
-
-    if (generateState.success && generateState.portraitDataUri) {
-        setLocalPortraitUri(generateState.portraitDataUri);
-        if (generateState.petName) {
-            setPetName(generateState.petName);
-        }
-    }
-
-    if (generateState.message && !generateState.success) {
-        toast({
-            title: 'Oops!',
-            description: generateState.message,
-            variant: 'destructive',
-        });
-    }
-  }, [generateState, isGenerating, isPublishing, toast]);
-
-   useEffect(() => {
-    if (generateState.success && generateState.portraitDataUri) {
+    if (generatedPortrait?.success && generatedPortrait?.portraitDataUri) {
       portraitSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
-  }, [generateState]);
+  }, [generatedPortrait]);
 
-
-  useEffect(() => {
-      if (publishState.message && !isPublishing) {
-          toast({
-              title: publishState.success ? 'Success!' : 'Oops!',
-              description: publishState.message,
-              variant: publishState.success ? 'default' : 'destructive',
-          });
-          if (publishState.success) {
-             setLocalPortraitUri(undefined);
-          }
-      }
-  }, [publishState, isPublishing, toast]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -172,6 +88,64 @@ export default function PortraitGeneratorForm() {
       reader.readAsDataURL(file);
     }
   };
+  
+  const handleGenerationSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setIsGenerating(true);
+    setGeneratedPortrait(null);
+
+    const hatStyle = getHatStyle();
+
+    // Basic client-side validation
+    if (!photoDataUri) {
+      toast({ title: 'Oops!', description: 'Please upload a photo of your pet.', variant: 'destructive' });
+      setIsGenerating(false);
+      return;
+    }
+     if (!petName) {
+      toast({ title: 'Oops!', description: 'Please enter your pet\'s name.', variant: 'destructive' });
+      setIsGenerating(false);
+      return;
+    }
+     if (!hatStyle) {
+      toast({ title: 'Oops!', description: 'Please select or describe a hat style.', variant: 'destructive' });
+      setIsGenerating(false);
+      return;
+    }
+
+    const result = await handleGeneratePortrait({ petName, photoDataUri, hatStyle });
+    
+    if (!result.success) {
+      toast({ title: 'Oops!', description: result.message, variant: 'destructive' });
+    }
+    
+    setGeneratedPortrait(result);
+    setIsGenerating(false);
+  }
+
+  const handlePublishSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!generatedPortrait?.portraitDataUri || !generatedPortrait?.petName || !generatedPortrait?.hatStyle) return;
+    
+    setIsPublishing(true);
+
+    const result = await handlePublishPortrait({
+        petName: generatedPortrait.petName,
+        hatStyle: generatedPortrait.hatStyle,
+        portraitDataUri: generatedPortrait.portraitDataUri,
+    });
+
+    toast({
+        title: result.success ? 'Success!' : 'Oops!',
+        description: result.message,
+        variant: result.success ? 'default' : 'destructive',
+    });
+
+    if (result.success) {
+       setGeneratedPortrait(null);
+    }
+    setIsPublishing(false);
+  }
 
   const handleHatSelect = (hat: string) => {
     setSelectedHat(hat);
@@ -184,10 +158,10 @@ export default function PortraitGeneratorForm() {
   }
 
   const handleDownload = () => {
-    if (!localPortraitUri) return;
+    if (!generatedPortrait?.portraitDataUri) return;
 
     const link = document.createElement('a');
-    link.href = localPortraitUri;
+    link.href = generatedPortrait.portraitDataUri;
     const timestamp = new Date().getTime();
     const petNameForFile = petName || 'pet';
     const hatStyleForFile = (getHatStyle() || 'portrait').replace(/\s+/g, '_');
@@ -197,8 +171,9 @@ export default function PortraitGeneratorForm() {
     document.body.removeChild(link);
   };
 
-  const currentHatStyle = generateState.success ? generateState.hatStyle : getHatStyle();
-  const currentPetName = generateState.success ? generateState.petName : petName;
+  const localPortraitUri = generatedPortrait?.portraitDataUri;
+  const currentHatStyle = generatedPortrait?.hatStyle;
+  const currentPetName = generatedPortrait?.petName;
 
   return (
     <>
@@ -208,10 +183,7 @@ export default function PortraitGeneratorForm() {
             <CardDescription as="p">Follow these simple steps to get a portrait of your furry friend.</CardDescription>
           </CardHeader>
           <CardContent>
-            <form action={wrappedGenerateAction} className="space-y-6">
-              <input type="hidden" name="photoDataUri" value={photoDataUri} />
-              <input type="hidden" name="hatStyle" value={getHatStyle()} />
-
+            <form onSubmit={handleGenerationSubmit} className="space-y-6">
               <div className="space-y-2">
                 <Label htmlFor="pet-photo" className="text-base">1. Upload a Photo</Label>
                 <div
@@ -251,6 +223,7 @@ export default function PortraitGeneratorForm() {
                   placeholder="e.g., Buddy"
                   value={petName}
                   onChange={(e) => setPetName(e.target.value)}
+                  disabled={isGenerating}
                 />
               </div>
 
@@ -263,6 +236,7 @@ export default function PortraitGeneratorForm() {
                       type="button"
                       variant={selectedHat === hat ? 'default' : 'outline'}
                       onClick={() => handleHatSelect(hat)}
+                      disabled={isGenerating}
                     >
                       {hat}
                     </Button>
@@ -271,6 +245,7 @@ export default function PortraitGeneratorForm() {
                     type="button"
                     variant="secondary"
                     onClick={shuffleHats}
+                    disabled={isGenerating}
                   >
                     <RefreshCw className="mr-2 h-4 w-4" />
                     More Choices
@@ -282,10 +257,23 @@ export default function PortraitGeneratorForm() {
                     value={customHat}
                     onChange={handleCustomHatChange}
                     className="mt-2"
+                    disabled={isGenerating}
                   />
               </div>
 
-              <GenerateButton />
+              <Button type="submit" variant="accent" size="lg" className="w-full" disabled={isGenerating}>
+                {isGenerating ? (
+                  <>
+                    <Sparkles className="mr-2 h-4 w-4 animate-spin" />
+                    Creating Magic...
+                  </>
+                ) : (
+                  <>
+                    <Wand2 className="mr-2 h-4 w-4" />
+                    Generate Portrait
+                  </>
+                )}
+              </Button>
             </form>
           </CardContent>
         </Card>
@@ -322,11 +310,20 @@ export default function PortraitGeneratorForm() {
               </CardContent>
                {localPortraitUri && (
                 <CardFooter className="flex-col gap-4">
-                    <form action={wrappedPublishAction} className="w-full">
-                        <input type="hidden" name="petName" value={currentPetName || ''} />
-                        <input type="hidden" name="hatStyle" value={currentHatStyle || ''} />
-                        <input type="hidden" name="portraitDataUri" value={localPortraitUri || ''} />
-                        <PublishButton />
+                    <form onSubmit={handlePublishSubmit} className="w-full">
+                        <Button type="submit" variant="secondary" className="w-full" disabled={isPublishing}>
+                          {isPublishing ? (
+                              <>
+                                <Sparkles className="mr-2 h-4 w-4 animate-spin" />
+                                Publishing...
+                              </>
+                          ) : (
+                              <>
+                                <Share2 className="mr-2 h-4 w-4" />
+                                Publish to Gallery
+                              </>
+                          )}
+                        </Button>
                     </form>
                     <div className="w-full grid grid-cols-1 sm:grid-cols-3 gap-2">
                         <Button asChild variant="outline" className="w-full">
