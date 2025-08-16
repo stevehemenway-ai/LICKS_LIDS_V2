@@ -1,5 +1,5 @@
 
-import { initializeApp, getApps, cert, type App, type ServiceAccount } from 'firebase-admin/app';
+import { initializeApp, getApps, cert, type App, type ServiceAccount, type AppOptions } from 'firebase-admin/app';
 
 let serviceAccount: ServiceAccount | undefined;
 
@@ -19,10 +19,15 @@ let app: App;
 if (getApps().find(app => app.name === appName)) {
   app = getApps().find(app => app.name === appName)!;
 } else {
-  app = initializeApp({
-    credential: serviceAccount ? cert(serviceAccount) : undefined, // Use cert if file exists
+  const options: AppOptions = {
     storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  }, appName);
+  };
+
+  if (serviceAccount) {
+    options.credential = cert(serviceAccount);
+  }
+
+  app = initializeApp(options, appName);
 }
 
 export { app };
