@@ -37,16 +37,6 @@ export async function generatePetPortrait(input: GeneratePetPortraitInput): Prom
     return generatePetPortraitFlow(input);
 }
 
-
-const prompt = ai.definePrompt(
-    {
-        name: 'petPortraitPrompt',
-        input: {schema: GeneratePetPortraitInputSchema},
-        output: {schema: GeneratePetPortraitOutputSchema},
-        prompt: `Create a photorealistic, high quality portrait of {{petName}} wearing a {{hatStyle}}.`,
-    },
-);
-
 const generatePetPortraitFlow = ai.defineFlow(
   {
     name: 'generatePetPortraitFlow',
