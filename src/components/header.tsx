@@ -1,19 +1,27 @@
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> e948740ed2a48df2b2069e7df8c3f385d97cafab
 'use client';
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+<<<<<<< HEAD
 import { Heart, Menu, Wrench } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { getAuth, onAuthStateChanged, type User } from 'firebase/auth';
 import { initializeApp, getApps } from 'firebase/app';
 import { firebaseConfig } from '@/lib/firebase';
 import { isAdmin, type UserRole } from '@/services/auth.service';
+=======
+import { Heart } from 'lucide-react';
+>>>>>>> e948740ed2a48df2b2069e7df8c3f385d97cafab
 
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/logo';
+<<<<<<< HEAD
 import {
   Sheet,
   SheetContent,
@@ -52,6 +60,17 @@ export function Header() {
       { href: '/admin', label: 'Admin', icon: Wrench },
   ]
 
+=======
+
+export function Header() {
+  const pathname = usePathname();
+
+  const navItems = [
+    { href: '/', label: 'Create' },
+    { href: '/gallery', label: 'Public Gallery' },
+  ];
+
+>>>>>>> e948740ed2a48df2b2069e7df8c3f385d97cafab
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 max-w-screen-2xl items-center">
@@ -71,6 +90,7 @@ export function Header() {
               {item.label}
             </Link>
           ))}
+<<<<<<< HEAD
            {userRole === 'admin' && adminNavItems.map((item) => (
              <Link
               key={item.href}
@@ -89,11 +109,17 @@ export function Header() {
         </nav>
         <div className="flex flex-1 items-center justify-end space-x-2 md:space-x-4">
            <Button asChild variant="outline">
+=======
+        </nav>
+        <div className="flex flex-1 items-center justify-end space-x-4">
+          <Button asChild variant="outline">
+>>>>>>> e948740ed2a48df2b2069e7df8c3f385d97cafab
             <a
               href="https://bestfriends.org/"
               target="_blank"
               rel="noopener noreferrer"
             >
+<<<<<<< HEAD
               <Heart className="mr-2 h-4 w-4" /> 
               <span className="hidden sm:inline">Support a Great Cause</span>
             </a>
@@ -131,6 +157,11 @@ export function Header() {
               </SheetContent>
             </Sheet>
           </div>
+=======
+              <Heart className="mr-2 h-4 w-4" /> Support a Great Cause
+            </a>
+          </Button>
+>>>>>>> e948740ed2a48df2b2069e7df8c3f385d97cafab
         </div>
       </div>
     </header>
