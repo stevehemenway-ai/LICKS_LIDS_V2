@@ -1,18 +1,11 @@
 rules_version = '2';
-
 service firebase.storage {
   match /b/{bucket}/o {
-    // Default rule: Allow public reads, but only authenticated writes.
-    // This allows the gallery to be public while securing uploads.
+    // Allow public read access to all files
     match /{allPaths=**} {
-      allow read;
+      allow read: if true;
+      // Allow writes only for authenticated users (i.e., from the server-side action)
       allow write: if request.auth != null;
-    }
-    
-    // Allow admins to delete images from the portraits folder.
-    // This rule is checked when an admin attempts to delete a portrait.
-    match /portraits/{imageId} {
-       allow delete: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
     }
   }
 }

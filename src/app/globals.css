@@ -4,43 +4,25 @@
 
 @layer base {
   :root {
-<<<<<<< HEAD
     --background: 0 0% 98%; /* Very light gray */
-=======
-    --background: 0 0% 94.1%;
->>>>>>> e948740ed2a48df2b2069e7df8c3f385d97cafab
     --foreground: 222.2 47.4% 11.2%;
     --card: 0 0% 100%;
     --card-foreground: 222.2 47.4% 11.2%;
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 47.4% 11.2%;
-<<<<<<< HEAD
     --primary: 216 50% 84%; /* Light periwinkle */
     --primary-foreground: 222.2 47.4% 11.2%;
-=======
-    --primary: 210 25% 78.4%;
-    --primary-foreground: 210 25% 15%;
->>>>>>> e948740ed2a48df2b2069e7df8c3f385d97cafab
     --secondary: 0 0% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
     --muted: 0 0% 90%;
     --muted-foreground: 222.2 47.4% 11.2% / 0.5;
-<<<<<<< HEAD
     --accent: 0 84% 75%; /* Soft coral */
     --accent-foreground: 222.2 47.4% 11.2%;
-=======
-    --accent: 0 83.3% 75.3%;
-    --accent-foreground: 0 85% 15%;
->>>>>>> e948740ed2a48df2b2069e7df8c3f385d97cafab
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
     --border: 0 0% 89.8%;
     --input: 0 0% 89.8%;
-<<<<<<< HEAD
     --ring: 216 50% 84%; /* Light periwinkle */
-=======
-    --ring: 210 25% 78.4%;
->>>>>>> e948740ed2a48df2b2069e7df8c3f385d97cafab
     --radius: 0.75rem;
   }
  
@@ -51,33 +33,19 @@
     --card-foreground: 210 40% 98%;
     --popover: 222.2 47.4% 11.2%;
     --popover-foreground: 210 40% 98%;
-<<<<<<< HEAD
     --primary: 216 50% 84%; /* Light periwinkle */
     --primary-foreground: 222.2 47.4% 11.2%;
-=======
-    --primary: 210 25% 78.4%;
-    --primary-foreground: 210 25% 15%;
->>>>>>> e948740ed2a48df2b2069e7df8c3f385d97cafab
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
     --muted: 217.2 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;
-<<<<<<< HEAD
     --accent: 0 84% 75%; /* Soft coral */
     --accent-foreground: 210 40% 98%;
-=======
-    --accent: 0 83.3% 75.3%;
-    --accent-foreground: 0 85% 15%;
->>>>>>> e948740ed2a48df2b2069e7df8c3f385d97cafab
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-<<<<<<< HEAD
     --ring: 216 50% 84%; /* Light periwinkle */
-=======
-    --ring: 210 25% 78.4%;
->>>>>>> e948740ed2a48df2b2069e7df8c3f385d97cafab
     --radius: 0.75rem;
   }
 }

@@ -12,6 +12,7 @@ import { firebaseConfig } from '@/lib/firebase';
 import { isAdmin, type UserRole } from '@/services/auth.service';
 import { getGalleryPortraits, type Portrait } from '@/services/gallery.service';
 import { handleDeletePortrait } from '@/app/actions';
+import { seedDatabase } from '@/services/test.service';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -34,7 +35,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Trash2 } from 'lucide-react';
+import { Trash2, DatabaseZap } from 'lucide-react';
 
 // Initialize Firebase
 const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
@@ -54,6 +55,7 @@ export default function AdminPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [portraitToDelete, setPortraitToDelete] = useState<Portrait | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isSeeding, setIsSeeding] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -74,19 +76,21 @@ export default function AdminPage() {
     return () => unsubscribe();
   }, [router, toast]);
 
+  const fetchPortraits = async () => {
+      try {
+        setLoading(true);
+        const fetchedPortraits = await getGalleryPortraits();
+        setPortraits(fetchedPortraits);
+      } catch (err) {
+        setError('Failed to fetch portraits.');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+  };
+
   useEffect(() => {
     if (userRole === 'admin') {
-      const fetchPortraits = async () => {
-        try {
-          const fetchedPortraits = await getGalleryPortraits();
-          setPortraits(fetchedPortraits);
-        } catch (err) {
-          setError('Failed to fetch portraits.');
-          console.error(err);
-        } finally {
-          setLoading(false);
-        }
-      };
       fetchPortraits();
     }
   }, [userRole]);
@@ -115,6 +119,21 @@ export default function AdminPage() {
     setPortraitToDelete(null);
   };
 
+  const handleSeedDatabase = async () => {
+    setIsSeeding(true);
+    try {
+        await seedDatabase();
+        toast({ title: 'Database Seeded', description: 'Sample portraits have been added to the gallery.' });
+        await fetchPortraits(); // Re-fetch portraits to show the new data
+    } catch (err) {
+        console.error(err);
+        toast({ title: 'Seeding Failed', description: 'Could not add sample data.', variant: 'destructive' });
+    } finally {
+        setIsSeeding(false);
+    }
+  };
+
+
   if (loading || userRole !== 'admin') {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -132,9 +151,15 @@ export default function AdminPage() {
   return (
     <>
       <div className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-          <p className="text-muted-foreground">Manage user-submitted portraits.</p>
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+            <p className="text-muted-foreground">Manage user-submitted portraits.</p>
+          </div>
+           <Button onClick={handleSeedDatabase} disabled={isSeeding}>
+            <DatabaseZap className="mr-2 h-4 w-4" />
+            {isSeeding ? 'Seeding...' : 'Seed Database'}
+          </Button>
         </div>
 
         {error && (

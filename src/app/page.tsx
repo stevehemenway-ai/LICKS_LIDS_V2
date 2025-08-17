@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 
 
 'use client';
@@ -161,14 +160,5 @@ export default function GalleryPage() {
         )}
       </div>
     </>
-=======
-import PortraitGenerator from "@/components/portrait-generator";
-
-export default function Home() {
-  return (
-    <div className="container mx-auto px-4 py-8">
-      <PortraitGenerator />
-    </div>
->>>>>>> e948740ed2a48df2b2069e7df8c3f385d97cafab
   );
 }

@@ -6,7 +6,6 @@ import { cn } from '@/lib/utils';
 
 export const metadata: Metadata = {
   title: 'Licks & Lids',
-<<<<<<< HEAD
   description: 'Generate photorealistic portraits of your pet wearing a hat!',
   openGraph: {
     title: 'Licks & Lids',
@@ -28,9 +27,6 @@ export const metadata: Metadata = {
     description: 'Generate photorealistic portraits of your pet wearing a hat!',
     images: ['https://your-app-url.com/og-image.png'], // Replace with your actual OG image URL
   },
-=======
-  description: 'Generate photorealistic portraits of your dog wearing a hat!',
->>>>>>> e948740ed2a48df2b2069e7df8c3f385d97cafab
 };
 
 export default function RootLayout({
