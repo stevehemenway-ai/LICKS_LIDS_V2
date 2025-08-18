@@ -3,19 +3,18 @@
 
 import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
-import { Camera, Sparkles, Wand2, Share2, RefreshCw, ShoppingCart, RefreshCcw, Download } from 'lucide-react';
+import { Camera, Sparkles, Wand2, ShoppingCart, RefreshCcw, Download, ArrowDown, Share2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { handleGeneratePortrait, handlePublishPortrait } from '@/app/actions';
+import { handleGeneratePortrait } from '@/app/actions';
 import type { GenerateActionResult } from '@/app/actions';
-
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
-import { cn } from '@/lib/utils';
 import { Textarea } from './ui/textarea';
+import { cn } from '@/lib/utils';
 
 const allHatOptions = [
   'Top Hat', 'Cowboy Hat', 'Beanie', 'Fez', 'Beret', 'Baseball Cap', 
@@ -28,36 +27,34 @@ const allHatOptions = [
 
 const HATS_TO_SHOW = 15;
 
+type PortraitState = 'idle' | 'generating' | 'generated';
 
 export default function PortraitGeneratorForm() {
   const { toast } = useToast();
   
-  // State for form inputs
+  // Form input state
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [photoDataUri, setPhotoDataUri] = useState<string>('');
   const [petName, setPetName] = useState('');
   const [selectedHat, setSelectedHat] = useState('');
   const [customHat, setCustomHat] = useState('');
+  
+  // Generation and UI flow state
+  const [portraitState, setPortraitState] = useState<PortraitState>('idle');
+  const [generatedPortraitUri, setGeneratedPortraitUri] = useState<string>('');
   const [displayedHats, setDisplayedHats] = useState<string[]>([]);
+  const [isShareable, setIsShareable] = useState(false);
   
-  // State for generation results
-  const [generatedPortrait, setGeneratedPortrait] = useState<GenerateActionResult | null>(null);
-  
-  // State for loading and submission status
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [isPublishing, setIsPublishing] = useState(false);
-
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const hatSelectionRef = useRef<HTMLDivElement>(null);
   const portraitSectionRef = useRef<HTMLDivElement>(null);
   
   const getHatStyle = () => customHat.trim() || selectedHat;
   
-  const resetPortrait = () => {
-    setGeneratedPortrait(null);
+  const resetForRemix = () => {
+    setPortraitState('idle');
+    setGeneratedPortraitUri('');
     setSelectedHat('');
     setCustomHat('');
-    hatSelectionRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
   
   const shuffleHats = () => {
@@ -67,14 +64,17 @@ export default function PortraitGeneratorForm() {
   
   useEffect(() => {
     shuffleHats();
+    // Check for Web Share API support on component mount
+    if (navigator.share) {
+      setIsShareable(true);
+    }
   }, []);
 
   useEffect(() => {
-    if (generatedPortrait?.success && generatedPortrait?.portraitDataUri) {
+    if (portraitState === 'generated') {
       portraitSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
-  }, [generatedPortrait]);
-
+  }, [portraitState]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -91,60 +91,40 @@ export default function PortraitGeneratorForm() {
   
   const handleGenerationSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setIsGenerating(true);
-    setGeneratedPortrait(null);
-
+    
     const hatStyle = getHatStyle();
 
-    // Basic client-side validation
+    // Client-side validation
     if (!photoDataUri) {
       toast({ title: 'Oops!', description: 'Please upload a photo of your pet.', variant: 'destructive' });
-      setIsGenerating(false);
       return;
     }
-     if (!petName) {
-      toast({ title: 'Oops!', description: 'Please enter your pet\'s name.', variant: 'destructive' });
-      setIsGenerating(false);
+    if (!petName) {
+      toast({ title: 'Oops!', description: "Please enter your pet's name.", variant: 'destructive' });
       return;
     }
-     if (!hatStyle) {
+    if (!hatStyle) {
       toast({ title: 'Oops!', description: 'Please select or describe a hat style.', variant: 'destructive' });
-      setIsGenerating(false);
       return;
     }
-
-    const result = await handleGeneratePortrait({ petName, photoDataUri, hatStyle });
     
-    if (!result.success) {
-      toast({ title: 'Oops!', description: result.message, variant: 'destructive' });
+    setPortraitState('generating');
+    setGeneratedPortraitUri('');
+
+    const result: GenerateActionResult = await handleGeneratePortrait({ petName, photoDataUri, hatStyle });
+    
+    if (result.success && result.portraitDataUri) {
+      setGeneratedPortraitUri(result.portraitDataUri);
+      setPortraitState('generated');
+    } else {
+      toast({ 
+        title: 'Generation Failed', 
+        description: result.message || 'Please check your input for any offensive language or try a different prompt.', 
+        variant: 'destructive',
+        duration: 9000,
+      });
+      setPortraitState('idle');
     }
-    
-    setGeneratedPortrait(result);
-    setIsGenerating(false);
-  }
-
-  const handlePublishSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (!generatedPortrait?.portraitDataUri || !generatedPortrait?.petName || !generatedPortrait?.hatStyle) return;
-    
-    setIsPublishing(true);
-
-    const result = await handlePublishPortrait({
-        petName: generatedPortrait.petName,
-        hatStyle: generatedPortrait.hatStyle,
-        portraitDataUri: generatedPortrait.portraitDataUri,
-    });
-
-    toast({
-        title: result.success ? 'Success!' : 'Oops!',
-        description: result.message,
-        variant: result.success ? 'default' : 'destructive',
-    });
-
-    if (result.success) {
-       setGeneratedPortrait(null);
-    }
-    setIsPublishing(false);
   }
 
   const handleHatSelect = (hat: string) => {
@@ -158,10 +138,10 @@ export default function PortraitGeneratorForm() {
   }
 
   const handleDownload = () => {
-    if (!generatedPortrait?.portraitDataUri) return;
+    if (!generatedPortraitUri) return;
 
     const link = document.createElement('a');
-    link.href = generatedPortrait.portraitDataUri;
+    link.href = generatedPortraitUri;
     const timestamp = new Date().getTime();
     const petNameForFile = petName || 'pet';
     const hatStyleForFile = (getHatStyle() || 'portrait').replace(/\s+/g, '_');
@@ -171,12 +151,51 @@ export default function PortraitGeneratorForm() {
     document.body.removeChild(link);
   };
 
-  const localPortraitUri = generatedPortrait?.portraitDataUri;
-  const currentHatStyle = generatedPortrait?.hatStyle;
-  const currentPetName = generatedPortrait?.petName;
+  const handleShare = async () => {
+    if (!navigator.share || !generatedPortraitUri) {
+      toast({
+        title: 'Sharing not available',
+        description: 'Your browser does not support the Web Share API or you are not on a secure connection (https).',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    try {
+      const response = await fetch(generatedPortraitUri);
+      const blob = await response.blob();
+      const file = new File([blob], 'licks-and-lids-portrait.png', { type: 'image/png' });
+
+      const shareData = {
+        title: 'My Licks & Lids Creation!',
+        text: 'Created by Licks & Lids: www.licksandlids.com',
+        files: [file],
+      };
+
+      if (navigator.canShare && navigator.canShare(shareData)) {
+        await navigator.share(shareData);
+      } else {
+        // Fallback for when files can't be shared
+        await navigator.share({
+            title: shareData.title,
+            text: shareData.text,
+            url: 'https://www.licksandlids.com',
+        });
+      }
+    } catch (error) {
+      console.error('Sharing failed', error);
+      toast({
+        title: 'Sharing failed',
+        description: 'There was an error trying to share your portrait.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const isGenerating = portraitState === 'generating';
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+    <div className="space-y-8">
       <Card>
         <CardHeader>
           <CardTitle as="h2">Create Your Masterpiece</CardTitle>
@@ -189,6 +208,7 @@ export default function PortraitGeneratorForm() {
               <div
                 className="relative flex justify-center items-center w-full h-48 md:h-64 border-2 border-dashed rounded-lg cursor-pointer hover:border-primary transition-colors"
                 onClick={() => fileInputRef.current?.click()}
+                data-ai-hint="pet photo"
               >
                 {photoPreview ? (
                   <Image
@@ -212,6 +232,7 @@ export default function PortraitGeneratorForm() {
                 ref={fileInputRef}
                 className="hidden"
                 onChange={handleFileChange}
+                disabled={isGenerating}
               />
             </div>
 
@@ -227,7 +248,7 @@ export default function PortraitGeneratorForm() {
               />
             </div>
 
-           <div className="space-y-4" ref={hatSelectionRef}>
+           <div className="space-y-4">
               <Label className="text-base">3. Choose a Hat Style</Label>
               <div className="flex flex-wrap gap-2">
                 {displayedHats.map((hat) => (
@@ -247,8 +268,8 @@ export default function PortraitGeneratorForm() {
                   onClick={shuffleHats}
                   disabled={isGenerating}
                 >
-                  <RefreshCw className="mr-2 h-4 w-4" />
-                  More Choices
+                  <RefreshCcw className="mr-2 h-4 w-4" />
+                  Shuffle Hats
                 </Button>
               </div>
                <Textarea
@@ -277,76 +298,63 @@ export default function PortraitGeneratorForm() {
           </form>
         </CardContent>
       </Card>
-
-      <div ref={portraitSectionRef} className="sticky top-20">
-          <Card>
+      
+      {(portraitState === 'generating' || portraitState === 'generated') && (
+        <div ref={portraitSectionRef}>
+          <div className="flex justify-center items-center text-muted-foreground my-4">
+            <ArrowDown className="h-6 w-6 animate-bounce" />
+          </div>
+          <Card className={cn(portraitState === 'generated' && 'animate-in fade-in zoom-in-95 duration-500')}>
             <CardHeader>
               <CardTitle as="h2">Your Portrait</CardTitle>
-              <CardDescription as="p">The generated portrait will appear here.</CardDescription>
+              <CardDescription as="p">Behold! Your pet's masterpiece.</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="aspect-square w-full rounded-lg bg-muted flex items-center justify-center overflow-hidden">
+              <div className="aspect-square w-full rounded-lg bg-muted flex items-center justify-center overflow-hidden" data-ai-hint="generated portrait">
                 {isGenerating ? (
-                  <div className="w-full h-full flex flex-col items-center justify-center space-y-4">
+                  <div className="w-full h-full flex flex-col items-center justify-center space-y-4 bg-muted p-4">
                     <Skeleton className="h-full w-full" />
                     <p className="text-muted-foreground animate-pulse">Dipping the brushes...</p>
                   </div>
-                ) : localPortraitUri ? (
+                ) : (generatedPortraitUri &&
                   <Image
-                    src={localPortraitUri}
+                    src={generatedPortraitUri}
                     alt="Generated pet portrait"
                     width={512}
                     height={512}
                     className="object-cover w-full h-full transition-opacity duration-500 opacity-100"
                     priority
                   />
-                ) : (
-                  <div className="text-center text-muted-foreground p-8">
-                    <Wand2 className="mx-auto h-16 w-16" />
-                    <p className="mt-4">Your pet's portrait awaits!</p>
-                  </div>
                 )}
               </div>
             </CardContent>
-             {localPortraitUri && (
+             {portraitState === 'generated' && (
               <CardFooter className="flex-col gap-4">
-                  <form onSubmit={handlePublishSubmit} className="w-full">
-                      <Button type="submit" variant="secondary" className="w-full" disabled={isPublishing}>
-                        {isPublishing ? (
-                            <>
-                              <Sparkles className="mr-2 h-4 w-4 animate-spin" />
-                              Publishing...
-                            </>
-                        ) : (
-                            <>
-                              <Share2 className="mr-2 h-4 w-4" />
-                              Publish to Gallery
-                            </>
-                        )}
-                      </Button>
-                  </form>
-                  <div className="w-full grid grid-cols-1 sm:grid-cols-3 gap-2">
+                  <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
                       <Button asChild variant="outline" className="w-full">
                           <a
-                           href={`https://www.amazon.com/s?k=${encodeURIComponent((currentHatStyle || '') + ' for pet')}&tag=logonitro-20`}
+                           href={`https://www.amazon.com/s?k=${encodeURIComponent((getHatStyle() || '') + ' for pet')}&tag=logonitro-20`}
                            target="_blank"
                            rel="noopener noreferrer"
                           >
                               <ShoppingCart /> 
-                              <span className="sm:hidden">Shop</span>
-                              <span className="hidden sm:inline">Shop this look</span>
+                              Shop Look
                           </a>
                       </Button>
-                      <Button variant="outline" className="w-full" onClick={resetPortrait}>
+                      <Button variant="outline" className="w-full" onClick={resetForRemix}>
                           <RefreshCcw /> 
-                          <span className="sm:hidden">Remix</span>
-                           <span className="hidden sm:inline">Choose another hat</span>
+                          Create New
                       </Button>
                       <Button variant="outline" className="w-full" onClick={handleDownload}>
                           <Download /> 
-                           <span className="sm:hidden">Save</span>
-                           <span className="hidden sm:inline">Download</span>
+                           Download
                       </Button>
+                      {isShareable && (
+                        <Button variant="outline" className="w-full" onClick={handleShare}>
+                            <Share2 /> 
+                            Share
+                        </Button>
+                      )}
                   </div>
                   <p className="text-xs text-muted-foreground text-center w-full pt-2">
                       As an Amazon Associate, we earn from qualifying purchases.
@@ -354,7 +362,8 @@ export default function PortraitGeneratorForm() {
               </CardFooter>
              )}
           </Card>
-      </div>
+        </div>
+      )}
     </div>
   );
 }

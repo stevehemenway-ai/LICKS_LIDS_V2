@@ -18,21 +18,39 @@ const generatePetPortraitFlow = ai.defineFlow(
   },
   async (input) => {
     
-    const { media } = await ai.generate({
+    const { media, finishReason } = await ai.generate({
         model: 'googleai/gemini-2.0-flash-preview-image-generation',
         prompt: [
           {text: `A photorealistic, high-quality portrait of a pet named ${input.petName} wearing a ${input.hatStyle}. The final image should look like a real photo.`},
           {media: {url: input.photoDataUri}}
         ],
         config: {
-            responseModalities: ['IMAGE', 'TEXT'], 
+            responseModalities: ['IMAGE', 'TEXT'],
+            safetySettings: [
+              {
+                category: 'HARM_CATEGORY_HATE_SPEECH',
+                threshold: 'BLOCK_MEDIUM_AND_ABOVE',
+              },
+              {
+                category: 'HARM_CATEGORY_HARASSMENT',
+                threshold: 'BLOCK_MEDIUM_AND_ABOVE',
+              },
+              {
+                category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT',
+                threshold: 'BLOCK_MEDIUM_AND_ABOVE',
+              },
+              {
+                category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
+                threshold: 'BLOCK_MEDIUM_AND_ABOVE',
+              },
+            ]
         },
     });
 
     const portraitDataUri = media?.url;
 
-    if (!portraitDataUri) {
-      throw new Error('Failed to generate the pet portrait.');
+    if (finishReason !== 'stop' || !portraitDataUri) {
+       throw new Error(`The portrait could not be generated. Please check your input for any offensive language or try a different prompt. Finish Reason: ${finishReason}`);
     }
     
     return { portraitDataUri };
