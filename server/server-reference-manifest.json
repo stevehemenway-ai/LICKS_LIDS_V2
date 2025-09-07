@@ -1,0 +1,28 @@
+{
+  "node": {
+    "4095429cac63eca830268522644ae507967c7fbd24": {
+      "workers": {
+        "app/create/page": {
+          "moduleId": "[project]/.next-internal/server/app/create/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/ai/generate-portrait-flow.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/create/page": "action-browser"
+      }
+    },
+    "409c2dbcd02d2415415be981c04b8de4278bcb67a2": {
+      "workers": {
+        "app/feedback/page": {
+          "moduleId": "[project]/.next-internal/server/app/feedback/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/ai/submit-feedback-flow.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": true
+        }
+      },
+      "layer": {
+        "app/feedback/page": "action-browser"
+      }
+    }
+  },
+  "edge": {},
+  "encryptionKey": "lNKAS3hd/v1DM6qbEgr+3CAjvXghU1Pcpd2hVWwIABw="
+}

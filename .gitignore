@@ -1,0 +1,42 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# Dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# Testing
+/coverage
+
+# Next.js build output
+/.next/
+/out/
+
+# Production
+/build
+
+# Misc
+.DS_Store
+*.pem
+
+# Vercel
+.vercel
+
+#-*- mode: gitignore; -*-
+# ignore all .env files
+*.env
+*.env.local
+*.env.development.local
+*.env.test.local
+*.env.production.local
+
+#turbo
+.turbo
+
+# Firebase
+/firebase-debug.log
+/firestore.rules
+/storage.rules
+/firebase.json
+apphosting.yaml
+server/chunks/ssr/*.js.map

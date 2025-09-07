@@ -1,0 +1,16 @@
+{
+  "node": {
+    "409c2dbcd02d2415415be981c04b8de4278bcb67a2": {
+      "workers": {
+        "app/feedback/page": {
+          "moduleId": "[project]/.next-internal/server/app/feedback/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/ai/submit-feedback-flow.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": true
+        }
+      },
+      "layer": {
+        "app/feedback/page": "action-browser"
+      }
+    }
+  },
+  "edge": {}
+}
