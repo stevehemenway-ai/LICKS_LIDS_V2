@@ -2,7 +2,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Instagram, Facebook, MessageSquareHeart } from 'lucide-react';
 import { getAnalytics, logEvent, isSupported } from 'firebase/analytics';
 import { app } from '@/lib/firebase';
@@ -14,7 +14,6 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 
 export function Header() {
   const [analytics, setAnalytics] = useState<any>(null);
-  const router = useRouter();
 
   useEffect(() => {
     // Only initialize Analytics if the projectId is available in the config
@@ -50,9 +49,11 @@ export function Header() {
       <div className="container flex h-16 max-w-screen-2xl items-center justify-between">
         <Logo />
         <div className="flex items-center gap-2">
-            <Button variant="outline" onClick={() => router.push('/feedback')}>
-                <MessageSquareHeart className="mr-2" />
+            <Button variant="outline" asChild>
+              <Link href="/feedback">
+                <MessageSquareHeart className="mr-2 h-4 w-4" />
                 Feedback
+              </Link>
             </Button>
             
             <TooltipProvider>
