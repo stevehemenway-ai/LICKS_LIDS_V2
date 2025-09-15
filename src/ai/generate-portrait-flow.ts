@@ -3,7 +3,7 @@
  * @fileOverview A Genkit flow for generating and compressing pet portraits.
  * 
  * This file defines the AI flow for creating a photorealistic portrait of a pet wearing a hat
- * and then compressing the result into a lightweight WebP format for faster delivery.
+ * and then converting the result into a PNG format.
  * - generatePortrait: The main function that orchestrates portrait generation and compression.
  * - GeneratePortraitInput: The Zod schema for the input data (pet photo, name, hat style).
  * - GeneratePortraitOutput: The Zod schema for the output data (the generated, compressed image URI).
@@ -68,15 +68,15 @@ Generate a new, photorealistic image of the pet from the photo, but make sure it
       const base64Data = media.url.split(',')[1];
       const imageBuffer = Buffer.from(base64Data, 'base64');
       
-      // Compress the image using sharp
-      const compressedImageBuffer = await sharp(imageBuffer)
-          .webp({ quality: 80 }) // Convert to WebP with 80% quality
+      // Convert the image to PNG
+      const processedImageBuffer = await sharp(imageBuffer)
+          .png()
           .toBuffer();
       
       // Re-encode to a data URI
-      const compressedDataUri = `data:image/webp;base64,${compressedImageBuffer.toString('base64')}`;
+      const processedDataUri = `data:image/png;base64,${processedImageBuffer.toString('base64')}`;
 
-      return { portraitDataUri: compressedDataUri };
+      return { portraitDataUri: processedDataUri };
     } catch (error: any) {
         // Log the entire error object to the server console for debugging
         console.error('Full Generation Error:', JSON.stringify(error, null, 2));

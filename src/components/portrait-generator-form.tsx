@@ -102,7 +102,7 @@ export default function PortraitGeneratorForm() {
         link.href = url;
         
         const hatStyle = getHatStyle();
-        const fileName = `${petName.toLowerCase().replace(/\s/g, '-')}-in-a-${hatStyle.toLowerCase().replace(/\s/g, '-')}.webp`;
+        const fileName = `${petName.toLowerCase().replace(/\s/g, '-')}-in-a-${hatStyle.toLowerCase().replace(/\s/g, '-')}.png`;
         link.download = fileName;
 
         document.body.appendChild(link);
